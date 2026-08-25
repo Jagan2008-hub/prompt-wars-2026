@@ -133,11 +133,16 @@ function MainApp() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)' }}>
+      {/* Skip to Main Content Link for Screen Readers & Keyboard Nav */}
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
+
       {/* Top Navigation */}
       <Navbar currentRoute={currentPath} navigate={navigate} />
 
       {/* Main Page Area */}
-      <main style={{ flex: 1 }}>
+      <main id="main-content" style={{ flex: 1 }}>
         {renderCurrentPage()}
       </main>
 

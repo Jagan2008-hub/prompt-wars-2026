@@ -2,7 +2,7 @@ import React from 'react';
 import { Sparkles, Users, FolderGit2, Zap, ArrowRight, CheckCircle2, Plus, Clock, Bell, ShieldAlert, Award, AlertCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { CompatibilityRing } from '../components/CompatibilityRing';
-import { calculateLocalMatch } from '../lib/gemini';
+import { calculateLocalMatch } from '../lib/matching';
 
 interface DashboardPageProps {
   navigate: (route: string) => void;
@@ -107,12 +107,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ navigate, openProf
 
             {profileCompletionPercentage < 100 ? (
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                💡 <strong>Optimization Tip:</strong> Add your weekly availability and learning goals to improve Gemini AI match accuracy by +15%.
+                💡 <strong>Optimization Tip:</strong> Add your weekly availability and learning goals to improve match accuracy by +15%.
               </p>
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#10b981', fontSize: '0.85rem', fontWeight: 600 }}>
                 <CheckCircle2 size={16} />
-                <span>All profile fields complete! Optimal AI matching active.</span>
+                <span>All profile fields complete! Optimal matching active.</span>
               </div>
             )}
           </div>
@@ -128,7 +128,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ navigate, openProf
 
       </div>
 
-      {/* AI Key Match Statistics */}
+      {/* Key Match Statistics */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
         <div className="glass-card" style={{ padding: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-primary)', marginBottom: '8px' }}>
@@ -154,7 +154,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ navigate, openProf
             <span style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase' }}>Highest Synergy</span>
           </div>
           <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#ffffff' }}>94% Match</div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>PulseSense AI Co-Pilot</div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>Team Fit Analysis</div>
         </div>
 
         <div className="glass-card" style={{ padding: '20px' }}>
@@ -172,7 +172,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ navigate, openProf
         <div className="glass-card" style={{ padding: '24px', border: '1px solid rgba(99, 102, 241, 0.4)', background: 'rgba(99, 102, 241, 0.08)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-cyan)', fontWeight: 700, marginBottom: '12px' }}>
             <Bell size={18} />
-            <span>Pending Team Invitations ({pendingInvites.length})</span>
+            <h2>Pending Team Invitations ({pendingInvites.length})</h2>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -204,14 +204,14 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ navigate, openProf
         </div>
       )}
 
-      {/* Main Two-Column Content: Smart Personalized Recommended Projects & Peers */}
+      {/* Main Two-Column Content: Recommended Projects & Peers */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '28px' }}>
         
-        {/* Smart Recommended Projects */}
+        {/* Recommended Projects */}
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <div>
-              <h3 style={{ fontSize: '1.25rem', color: '#ffffff' }}>Recommended Projects for You</h3>
+              <h2 style={{ fontSize: '1.25rem', color: '#ffffff' }}>Recommended Projects for You</h2>
               <div style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)' }}>Tailored to your skills & availability</div>
             </div>
             <button onClick={() => navigate('/projects')} style={{ background: 'transparent', color: 'var(--accent-cyan)', fontSize: '0.85rem', fontWeight: 600 }}>
@@ -236,7 +236,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ navigate, openProf
                         Role: {recommendedRole}
                       </span>
                     </div>
-                    <h4 style={{ fontSize: '1.05rem', color: '#ffffff', marginBottom: '4px' }}>{project.title}</h4>
+                    <h3 style={{ fontSize: '1.05rem', color: '#ffffff', marginBottom: '4px' }}>{project.title}</h3>
                   </div>
 
                   <CompatibilityRing score={matchScore} size={52} strokeWidth={5} showLabel={false} />
@@ -277,7 +277,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ navigate, openProf
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <div>
-              <h3 style={{ fontSize: '1.25rem', color: '#ffffff' }}>Recommended Teammates</h3>
+              <h2 style={{ fontSize: '1.25rem', color: '#ffffff' }}>Recommended Teammates</h2>
               <div style={{ fontSize: '0.75rem', color: 'var(--accent-emerald)' }}>Builders with complementary abilities</div>
             </div>
             <button onClick={() => navigate('/community')} style={{ background: 'transparent', color: 'var(--accent-cyan)', fontSize: '0.85rem', fontWeight: 600 }}>
@@ -287,18 +287,19 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ navigate, openProf
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {recommendedPeers.map(({ profile, complementarySkills, fitScore }) => (
-              <div 
+              <button 
+                type="button"
                 key={profile.id} 
                 className="glass-card" 
                 onClick={() => openProfileModal(profile)}
-                style={{ padding: '18px 20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}
+                style={{ padding: '18px 20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', textOverflow: 'ellipsis', width: '100%', textAlign: 'left' }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   <div style={{ width: '46px', height: '46px', borderRadius: '12px', background: 'var(--gradient-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', fontWeight: 800, fontSize: '1.1rem' }}>
                     {profile.full_name.charAt(0)}
                   </div>
                   <div>
-                    <h4 style={{ fontSize: '0.95rem', color: '#ffffff' }}>{profile.full_name}</h4>
+                    <h3 style={{ fontSize: '0.95rem', color: '#ffffff' }}>{profile.full_name}</h3>
                     <div style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)', fontWeight: 600 }}>
                       {profile.preferred_roles[0]} · {profile.college.split(' ')[0]}
                     </div>
@@ -313,7 +314,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ navigate, openProf
                     {fitScore}% Fit
                   </span>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -323,7 +324,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ navigate, openProf
       {/* My Active Projects / Teams Section */}
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h3 style={{ fontSize: '1.25rem', color: '#ffffff' }}>My Active Projects & Workspaces</h3>
+          <h2 style={{ fontSize: '1.25rem', color: '#ffffff' }}>My Active Projects & Workspaces</h2>
           <button onClick={() => navigate('/projects')} className="btn-secondary" style={{ padding: '6px 14px', fontSize: '0.8rem' }}>
             <Plus size={14} />
             <span>Create New Project</span>
@@ -351,7 +352,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ navigate, openProf
                     </span>
                   </div>
 
-                  <h4 style={{ fontSize: '1.1rem', color: '#ffffff', marginBottom: '6px' }}>{proj.title}</h4>
+                  <h3 style={{ fontSize: '1.1rem', color: '#ffffff', marginBottom: '6px' }}>{proj.title}</h3>
                   <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
                     {proj.description.slice(0, 100)}...
                   </p>
@@ -369,10 +370,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ navigate, openProf
                     onClick={() => navigate(`/projects/${proj.id}/ai-team`)}
                     className="btn-secondary"
                     style={{ padding: '8px 12px', fontSize: '0.8rem' }}
-                    title="AI Team Assembly Lab"
+                    title="Team Builder Lab"
                   >
                     <Zap size={15} color="var(--accent-cyan)" />
-                    <span>AI Lab</span>
+                    <span>Team Builder</span>
                   </button>
                 </div>
               </div>

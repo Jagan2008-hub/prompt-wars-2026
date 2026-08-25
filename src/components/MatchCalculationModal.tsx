@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, Calculator, HelpCircle, CheckCircle2 } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { X, Calculator, CheckCircle2 } from 'lucide-react';
 import { AIMatchAnalysis } from '../types';
 
 interface MatchCalculationModalProps {
@@ -15,22 +15,42 @@ export const MatchCalculationModal: React.FC<MatchCalculationModalProps> = ({
   candidateName,
   onClose,
 }) => {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    if (analysis) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [analysis, onClose]);
+
   if (!analysis) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      zIndex: 1300,
-      background: 'rgba(3, 7, 18, 0.85)',
-      backdropFilter: 'blur(8px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px',
-    }}>
+    <div 
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 1300,
+        background: 'rgba(3, 7, 18, 0.85)',
+        backdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div 
         className="glass-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="match-calc-title"
         style={{
           width: '100%',
           maxWidth: '620px',
@@ -46,6 +66,7 @@ export const MatchCalculationModal: React.FC<MatchCalculationModalProps> = ({
       >
         <button
           onClick={onClose}
+          aria-label="Close match calculation modal"
           style={{
             position: 'absolute',
             top: '20px',
@@ -66,7 +87,7 @@ export const MatchCalculationModal: React.FC<MatchCalculationModalProps> = ({
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
           <Calculator size={20} color="var(--accent-cyan)" />
-          <h3 style={{ fontSize: '1.4rem', color: '#ffffff' }}>How Was This Score Calculated?</h3>
+          <h2 id="match-calc-title" style={{ fontSize: '1.4rem', color: '#ffffff' }}>How Was This Score Calculated?</h2>
         </div>
 
         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
@@ -89,7 +110,7 @@ export const MatchCalculationModal: React.FC<MatchCalculationModalProps> = ({
               Final Weighted Output
             </div>
             <div style={{ fontSize: '0.85rem', color: '#ffffff', marginTop: '2px' }}>
-              Weighted Sum of 5 Core Competency Dimensions
+              Weighted Sum of Core Competency Dimensions
             </div>
           </div>
           <div style={{ fontSize: '2rem', fontWeight: 800, color: '#ffffff' }}>

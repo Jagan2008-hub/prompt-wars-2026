@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Plus, Sparkles, Calendar, Clock, Award, Layers, ShieldCheck, Zap } from 'lucide-react';
 import { ProjectCategory, RoleType, ExperienceLevel, Project } from '../types';
 import { useApp } from '../context/AppContext';
@@ -15,7 +15,7 @@ const CATEGORIES: ProjectCategory[] = [
 ];
 
 export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, onClose, onCreated }) => {
-  const { createProject, addToast, currentUser } = useApp();
+  const { createProject, addToast } = useApp();
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -30,6 +30,18 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
   const [selectedSkills, setSelectedSkills] = useState<string[]>(['React', 'Python', 'AI/ML']);
   const [customSkillInput, setCustomSkillInput] = useState('');
   const [selectedRoles, setSelectedRoles] = useState<RoleType[]>(['Frontend', 'AI/ML Engineer', 'UI/UX Designer']);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -58,7 +70,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
     }
   };
 
-  // Compute live AI readiness preview
+  // Compute project readiness preview
   const estimatedDifficulty = selectedSkills.some(s => ['AI/ML', 'PyTorch', 'ROS2', 'Go', 'Robotics'].includes(s))
     ? 'High Technical Complexity'
     : 'Moderate Sprint';
@@ -97,19 +109,27 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      zIndex: 1100,
-      background: 'rgba(3, 7, 18, 0.8)',
-      backdropFilter: 'blur(8px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px',
-    }}>
+    <div 
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 1100,
+        background: 'rgba(3, 7, 18, 0.8)',
+        backdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div 
         className="glass-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="create-proj-title"
         style={{
           width: '100%',
           maxWidth: '740px',
@@ -125,6 +145,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
       >
         <button
           onClick={onClose}
+          aria-label="Close create project modal"
           style={{
             position: 'absolute',
             top: '20px',
@@ -146,20 +167,20 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
         <div style={{ marginBottom: '24px' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', background: 'rgba(99, 102, 241, 0.15)', borderRadius: '9999px', color: '#a5b4fc', fontSize: '0.75rem', fontWeight: 600, marginBottom: '8px' }}>
             <Sparkles size={14} />
-            <span>AI Team Matchmaker</span>
+            <span>Project Builder</span>
           </div>
-          <h2 style={{ fontSize: '1.6rem', color: '#ffffff' }}>Create New Project</h2>
+          <h2 id="create-proj-title" style={{ fontSize: '1.6rem', color: '#ffffff' }}>Create New Project</h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-            Publish your project requirements. Our Gemini AI engine will automatically analyze skill gaps and recommend matching teammates.
+            Publish your project requirements. The matching engine will automatically analyze skill gaps and recommend compatible teammates.
           </p>
         </div>
 
-        {/* Live AI Project Readiness Indicator */}
+        {/* Project Readiness Preview */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '10px', border: '1px solid rgba(99, 102, 241, 0.25)', marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Zap size={18} color="var(--accent-cyan)" />
             <div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ffffff' }}>Live AI Readiness Score: {estimatedReadiness}%</div>
+              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ffffff' }}>Project Readiness Score: {estimatedReadiness}%</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Difficulty: {estimatedDifficulty} · {selectedRoles.length} Roles Defined</div>
             </div>
           </div>
@@ -173,15 +194,16 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
           {/* Title & Category */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+              <label htmlFor="proj-title-input" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                 Project Title *
               </label>
               <input
+                id="proj-title-input"
                 type="text"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. BioVision — Real-time AI Cellular Scanner"
+                placeholder="e.g. BioVision — Real-time Clinical Scanner"
                 style={{
                   width: '100%',
                   padding: '10px 14px',
@@ -196,10 +218,11 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+              <label htmlFor="proj-category-select" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                 Category
               </label>
               <select
+                id="proj-category-select"
                 value={category}
                 onChange={(e) => setCategory(e.target.value as ProjectCategory)}
                 style={{
@@ -224,10 +247,11 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
 
           {/* Description */}
           <div>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+            <label htmlFor="proj-desc-textarea" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
               Project Overview & Goals *
             </label>
             <textarea
+              id="proj-desc-textarea"
               required
               rows={3}
               value={description}
@@ -249,9 +273,9 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
 
           {/* Required Roles */}
           <div>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
+            <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
               Required Roles to Staff
-            </label>
+            </span>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
               {ALL_ROLES.map(role => {
                 const isSelected = selectedRoles.includes(role);
@@ -260,6 +284,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
                     type="button"
                     key={role}
                     onClick={() => toggleRole(role)}
+                    aria-pressed={isSelected}
                     style={{
                       padding: '5px 12px',
                       borderRadius: 'var(--radius-full)',
@@ -279,9 +304,9 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
 
           {/* Required Skills */}
           <div>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
+            <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
               Required Technical & Domain Skills
-            </label>
+            </span>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
               {ALL_AVAILABLE_SKILLS.slice(0, 16).map(skill => {
                 const isSelected = selectedSkills.includes(skill);
@@ -290,6 +315,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
                     type="button"
                     key={skill}
                     onClick={() => toggleSkill(skill)}
+                    aria-pressed={isSelected}
                     style={{
                       padding: '4px 10px',
                       borderRadius: '6px',
@@ -309,6 +335,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
             <div style={{ display: 'flex', gap: '8px' }}>
               <input
                 type="text"
+                aria-label="Add custom skill"
                 value={customSkillInput}
                 onChange={(e) => setCustomSkillInput(e.target.value)}
                 placeholder="Add custom skill (e.g. OpenCV, Solidity)..."
@@ -339,10 +366,11 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
           {/* Team Size, Commitment & Deadline */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+              <label htmlFor="members-needed-input" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                 Team Size Needed
               </label>
               <input
+                id="members-needed-input"
                 type="number"
                 min={2}
                 max={10}
@@ -361,10 +389,11 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+              <label htmlFor="commitment-hours-input" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                 Commitment (Hrs/Wk)
               </label>
               <input
+                id="commitment-hours-input"
                 type="number"
                 min={5}
                 max={40}
@@ -383,10 +412,11 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+              <label htmlFor="deadline-input" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                 Target Deadline
               </label>
               <input
+                id="deadline-input"
                 type="date"
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}

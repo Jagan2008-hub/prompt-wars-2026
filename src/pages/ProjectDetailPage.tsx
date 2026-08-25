@@ -18,7 +18,7 @@ import {
 import confetti from 'canvas-confetti';
 import { useApp } from '../context/AppContext';
 import { RoleType, AIMatchAnalysis } from '../types';
-import { evaluateCandidateMatch, calculateLocalMatch } from '../lib/gemini';
+import { calculateLocalMatch } from '../lib/matching';
 import { CompatibilityRing } from '../components/CompatibilityRing';
 import { MatchCalculationModal } from '../components/MatchCalculationModal';
 
@@ -44,10 +44,9 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ projectId,
     if (project && currentUser) {
       setApplyRole(currentUser.preferred_roles[0] || 'Developer');
       setLoadingAi(true);
-      evaluateCandidateMatch(project, currentUser).then(res => {
-        setAiAnalysis(res);
-        setLoadingAi(false);
-      });
+      const res = calculateLocalMatch(project, currentUser);
+      setAiAnalysis(res);
+      setLoadingAi(false);
     } else if (project) {
       setAiAnalysis(calculateLocalMatch(project, {
         id: 'guest',
@@ -105,7 +104,7 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ projectId,
       {/* Back Link */}
       <button
         onClick={() => navigate('/projects')}
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'transparent', color: 'var(--text-secondary)', fontSize: '0.9rem' }}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'transparent', color: 'var(--text-secondary)', fontSize: '0.9rem', width: 'fit-content' }}
       >
         <ArrowLeft size={16} />
         <span>Back to Project Directory</span>
@@ -134,7 +133,7 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ projectId,
               style={{ padding: '10px 20px', fontSize: '0.9rem' }}
             >
               <Zap size={16} />
-              <span>AI Team & Gap Lab</span>
+              <span>Team Builder Lab</span>
             </button>
             {isMember && (
               <button
@@ -187,21 +186,21 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ projectId,
         </div>
       </div>
 
-      {/* Main 2-Column: AI Candidate Match Station vs Team Roster & Apply */}
+      {/* Main 2-Column: Candidate Match Station vs Team Roster & Apply */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '32px' }}>
         
-        {/* LEFT: Comprehensive AI Match Analysis */}
+        {/* LEFT: Comprehensive Match Analysis */}
         <div className="glass-card" style={{ padding: '32px', border: '1px solid rgba(99, 102, 241, 0.4)' }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--accent-cyan)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>
                 <Sparkles size={14} />
-                <span>AI Team Fit Station</span>
+                <span>Compatibility Station</span>
               </div>
-              <h3 style={{ fontSize: '1.3rem', color: '#ffffff', marginTop: '2px' }}>
+              <h2 style={{ fontSize: '1.3rem', color: '#ffffff', marginTop: '2px' }}>
                 Your Compatibility Report
-              </h3>
+              </h2>
             </div>
 
             {aiAnalysis && (
@@ -214,16 +213,16 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ projectId,
           {loadingAi ? (
             <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
               <Sparkles size={24} color="var(--accent-primary)" style={{ animation: 'spin 2s linear infinite', marginBottom: '12px' }} />
-              <div>Gemini AI evaluating multi-factor synergy...</div>
+              <div>Evaluating multi-factor synergy...</div>
             </div>
           ) : aiAnalysis ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               
-              {/* Detailed 5-Metric Breakdown */}
+              {/* Detailed 4-Metric Breakdown */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
                 <div style={{ padding: '12px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                    <span>Skill Match (35%)</span>
+                    <span>Skill Match (30%)</span>
                     <span style={{ color: '#ffffff', fontWeight: 700 }}>{aiAnalysis.skillMatch}%</span>
                   </div>
                   <div style={{ width: '100%', height: '5px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', marginTop: '6px', overflow: 'hidden' }}>
@@ -253,7 +252,7 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ projectId,
 
                 <div style={{ padding: '12px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                    <span>Learning Synergy (15%)</span>
+                    <span>Learning Synergy (10%)</span>
                     <span style={{ color: '#ffffff', fontWeight: 700 }}>{aiAnalysis.learningSynergy}%</span>
                   </div>
                   <div style={{ width: '100%', height: '5px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', marginTop: '6px', overflow: 'hidden' }}>
@@ -284,7 +283,7 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ projectId,
               {/* Narrative Synergy Reasoning */}
               <div style={{ padding: '14px', background: 'rgba(99, 102, 241, 0.08)', borderRadius: '10px', border: '1px solid rgba(99, 102, 241, 0.25)' }}>
                 <div style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: 700, marginBottom: '4px' }}>
-                  AI Synergy Rationale:
+                  Compatibility Rationale:
                 </div>
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                   {aiAnalysis.synergyReasoning}
@@ -293,9 +292,9 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ projectId,
 
               {/* Why This Match Works (Key Strengths) */}
               <div>
-                <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '8px' }}>
+                <h3 style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '8px' }}>
                   Why This Match Works:
-                </div>
+                </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   {aiAnalysis.keyStrengths.map((str, idx) => (
                     <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.85rem', color: '#6ee7b7' }}>
@@ -309,9 +308,9 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ projectId,
               {/* Potential Risks & Growth Opportunities */}
               {aiAnalysis.growthAreas && aiAnalysis.growthAreas.length > 0 && (
                 <div>
-                  <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '8px' }}>
+                  <h3 style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '8px' }}>
                     Potential Risks & Growth Opportunities:
-                  </div>
+                  </h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     {aiAnalysis.growthAreas.map((grw, idx) => (
                       <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.85rem', color: '#fbbf24' }}>
@@ -332,13 +331,14 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ projectId,
           
           {/* Current Team Roster */}
           <div className="glass-card" style={{ padding: '28px' }}>
-            <h3 style={{ fontSize: '1.2rem', color: '#ffffff', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '1.2rem', color: '#ffffff', marginBottom: '16px' }}>
               Current Team Roster ({project.members.length})
-            </h3>
+            </h2>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {project.members.map(member => (
-                <div
+                <button
+                  type="button"
                   key={member.user_id}
                   onClick={() => member.profile && openProfileModal(member.profile)}
                   style={{
@@ -350,6 +350,8 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ projectId,
                     borderRadius: '10px',
                     border: '1px solid var(--border-glass)',
                     cursor: 'pointer',
+                    width: '100%',
+                    textAlign: 'left',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -365,7 +367,7 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ projectId,
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                     View Profile →
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           </div>
@@ -373,9 +375,9 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ projectId,
           {/* Application Form */}
           {!isMember && !isCreator && (
             <div className="glass-card" style={{ padding: '28px' }}>
-              <h3 style={{ fontSize: '1.2rem', color: '#ffffff', marginBottom: '8px' }}>
+              <h2 style={{ fontSize: '1.2rem', color: '#ffffff', marginBottom: '8px' }}>
                 Request to Join This Team
-              </h3>
+              </h2>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
                 Submit a direct join request with your intended role contribution.
               </p>
@@ -388,10 +390,11 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ projectId,
               ) : (
                 <form onSubmit={handleApply} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '4px' }}>
+                    <label htmlFor="apply-role-select" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '4px' }}>
                       Role You Want to Fill
                     </label>
                     <select
+                      id="apply-role-select"
                       value={applyRole}
                       onChange={(e) => setApplyRole(e.target.value as RoleType)}
                       style={{ width: '100%', padding: '10px 12px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border-glass)', borderRadius: '8px', color: '#ffffff', fontSize: '0.9rem', outline: 'none' }}
@@ -403,10 +406,11 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ projectId,
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '4px' }}>
+                    <label htmlFor="apply-pitch-textarea" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '4px' }}>
                       Pitch / Intro Note
                     </label>
                     <textarea
+                      id="apply-pitch-textarea"
                       rows={3}
                       required
                       value={applyMessage}
@@ -431,7 +435,7 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ projectId,
 
       {/* Match Calculation Modal */}
       <MatchCalculationModal
-        analysis={aiAnalysis}
+        analysis={isCalcModalOpen ? aiAnalysis : null}
         projectName={project.title}
         candidateName={currentUser?.full_name || 'Your Profile'}
         onClose={() => setIsCalcModalOpen(false)}

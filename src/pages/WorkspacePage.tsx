@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, 
   Sparkles, 
@@ -38,6 +38,18 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
   const [taskAssignee, setTaskAssignee] = useState(currentUser?.id || '');
   const [taskPriority, setTaskPriority] = useState<'low' | 'medium' | 'high'>('high');
   const [taskDueDate, setTaskDueDate] = useState('2026-09-10');
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsTaskModalOpen(false);
+      }
+    };
+    if (isTaskModalOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isTaskModalOpen]);
 
   if (!project) {
     return (
@@ -96,14 +108,14 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
       {/* Back Link */}
       <button
         onClick={() => navigate(`/projects/${project.id}`)}
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'transparent', color: 'var(--text-secondary)', fontSize: '0.9rem' }}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'transparent', color: 'var(--text-secondary)', fontSize: '0.9rem', width: 'fit-content' }}
       >
         <ArrowLeft size={16} />
         <span>Back to Project Overview</span>
       </button>
 
       {/* Workspace Header */}
-      <div className="glass-card" style={{ padding: '32px', border: '1px solid rgba(99, 102, 241, 0.35)' }}>
+      <div className="glass-card" style={{ padding: '36px', border: '1px solid rgba(99, 102, 241, 0.35)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
@@ -135,12 +147,13 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
 
         {/* Team Members Roster Strip */}
         <div style={{ marginBottom: '24px' }}>
-          <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '10px' }}>
+          <h2 style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '10px' }}>
             Sprint Roster & Assigned Roles ({project.members.length}):
-          </div>
+          </h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
             {project.members.map(m => (
-              <div
+              <button
+                type="button"
                 key={m.user_id}
                 onClick={() => m.profile && openProfileModal(m.profile)}
                 style={{
@@ -159,12 +172,12 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
                 </div>
                 <span style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: 600 }}>{m.profile?.full_name || 'Member'}</span>
                 <span style={{ fontSize: '0.7rem', color: 'var(--accent-cyan)' }}>({m.role})</span>
-              </div>
+              </button>
             ))}
           </div>
         </div>
 
-        {/* Compact Project Health & AI Insight Strip */}
+        {/* Compact Project Health & Insight Strip */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', padding: '16px', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
           <div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Project Health</div>
@@ -184,11 +197,11 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
           </div>
         </div>
 
-        {/* AI Project Health Insight Card */}
+        {/* Project Health Insight Card */}
         <div style={{ marginTop: '16px', padding: '14px 18px', background: 'rgba(99, 102, 241, 0.08)', borderRadius: '10px', border: '1px solid rgba(99, 102, 241, 0.25)', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <Zap size={20} color="var(--accent-cyan)" style={{ flexShrink: 0 }} />
           <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-            <strong style={{ color: '#ffffff' }}>AI Sprint Health Insight:</strong> Your team exhibits high frontend and design velocity. Ensure backend API interfaces are finalized before moving Sprint tasks to production integration.
+            <strong style={{ color: '#ffffff' }}>Sprint Health Insight:</strong> Your team exhibits high frontend and design velocity. Ensure backend API interfaces are finalized before moving Sprint tasks to production integration.
           </div>
         </div>
 
@@ -196,8 +209,10 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
 
       {/* Task Filters Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-        <div style={{ display: 'flex', gap: '6px', background: 'rgba(0, 0, 0, 0.3)', padding: '4px', borderRadius: 'var(--radius-full)', border: '1px solid var(--border-glass)' }}>
+        <div role="tablist" aria-label="Task filters" style={{ display: 'flex', gap: '6px', background: 'rgba(0, 0, 0, 0.3)', padding: '4px', borderRadius: 'var(--radius-full)', border: '1px solid var(--border-glass)' }}>
           <button
+            role="tab"
+            aria-selected={filterMode === 'all'}
             onClick={() => setFilterMode('all')}
             style={{
               padding: '6px 14px',
@@ -211,6 +226,8 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
             All Tasks ({projectTasks.length})
           </button>
           <button
+            role="tab"
+            aria-selected={filterMode === 'my'}
             onClick={() => setFilterMode('my')}
             style={{
               padding: '6px 14px',
@@ -224,6 +241,8 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
             My Tasks
           </button>
           <button
+            role="tab"
+            aria-selected={filterMode === 'high'}
             onClick={() => setFilterMode('high')}
             style={{
               padding: '6px 14px',
@@ -237,6 +256,8 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
             High Priority
           </button>
           <button
+            role="tab"
+            aria-selected={filterMode === 'done'}
             onClick={() => setFilterMode('done')}
             style={{
               padding: '6px 14px',
@@ -269,7 +290,7 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '12px', borderBottom: '1px solid var(--border-glass)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#ffffff', fontSize: '0.95rem' }}>
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-primary)' }}></span>
-              <span>To Do</span>
+              <h2>To Do</h2>
             </div>
             <span style={{ padding: '2px 8px', borderRadius: 'var(--radius-full)', background: 'rgba(255, 255, 255, 0.06)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
               {todoTasks.length}
@@ -285,7 +306,7 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
               todoTasks.map(task => (
                 <div key={task.id} style={{ padding: '14px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '10px', border: '1px solid var(--border-glass)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <h4 style={{ fontSize: '0.9rem', color: '#ffffff' }}>{task.title}</h4>
+                    <h3 style={{ fontSize: '0.9rem', color: '#ffffff' }}>{task.title}</h3>
                     <span style={{ fontSize: '0.65rem', padding: '1px 6px', borderRadius: '4px', background: task.priority === 'high' ? 'rgba(244, 63, 94, 0.2)' : 'rgba(245, 158, 11, 0.2)', color: task.priority === 'high' ? '#fda4af' : '#fbbf24' }}>
                       {task.priority}
                     </span>
@@ -313,7 +334,7 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '12px', borderBottom: '1px solid var(--border-glass)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#ffffff', fontSize: '0.95rem' }}>
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-amber)' }}></span>
-              <span>In Progress</span>
+              <h2>In Progress</h2>
             </div>
             <span style={{ padding: '2px 8px', borderRadius: 'var(--radius-full)', background: 'rgba(255, 255, 255, 0.06)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
               {inProgressTasks.length}
@@ -329,7 +350,7 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
               inProgressTasks.map(task => (
                 <div key={task.id} style={{ padding: '14px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '10px', border: '1px solid rgba(245, 158, 11, 0.3)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <h4 style={{ fontSize: '0.9rem', color: '#ffffff' }}>{task.title}</h4>
+                    <h3 style={{ fontSize: '0.9rem', color: '#ffffff' }}>{task.title}</h3>
                     <span style={{ fontSize: '0.65rem', padding: '1px 6px', borderRadius: '4px', background: 'rgba(245, 158, 11, 0.2)', color: '#fbbf24' }}>
                       {task.priority}
                     </span>
@@ -357,7 +378,7 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '12px', borderBottom: '1px solid var(--border-glass)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#ffffff', fontSize: '0.95rem' }}>
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-emerald)' }}></span>
-              <span>Completed</span>
+              <h2>Completed</h2>
             </div>
             <span style={{ padding: '2px 8px', borderRadius: 'var(--radius-full)', background: 'rgba(255, 255, 255, 0.06)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
               {doneTasks.length}
@@ -374,7 +395,7 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
                 <div key={task.id} style={{ padding: '14px', background: 'rgba(16, 185, 129, 0.05)', borderRadius: '10px', border: '1px solid rgba(16, 185, 129, 0.2)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <CheckCircle2 size={15} color="#34d399" />
-                    <h4 style={{ fontSize: '0.9rem', color: '#ffffff', textDecoration: 'line-through' }}>{task.title}</h4>
+                    <h3 style={{ fontSize: '0.9rem', color: '#ffffff', textDecoration: 'line-through' }}>{task.title}</h3>
                   </div>
                   {task.description && (
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{task.description}</p>
@@ -392,45 +413,58 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
 
       {/* Task Creation Modal */}
       {isTaskModalOpen && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 1200,
-          background: 'rgba(3, 7, 18, 0.8)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px',
-        }}>
-          <div className="glass-card" style={{ width: '100%', maxWidth: '480px', padding: '28px', background: 'rgba(15, 23, 42, 0.96)', borderRadius: 'var(--radius-lg)' }}>
+        <div 
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 1200,
+            background: 'rgba(3, 7, 18, 0.8)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsTaskModalOpen(false);
+          }}
+        >
+          <div 
+            className="glass-card" 
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-task-title"
+            style={{ width: '100%', maxWidth: '480px', padding: '28px', background: 'rgba(15, 23, 42, 0.96)', borderRadius: 'var(--radius-lg)' }}
+          >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '1.2rem', color: '#ffffff' }}>Add Sprint Task</h3>
-              <button onClick={() => setIsTaskModalOpen(false)} style={{ background: 'transparent', color: 'var(--text-secondary)' }}>
+              <h3 id="add-task-title" style={{ fontSize: '1.2rem', color: '#ffffff' }}>Add Sprint Task</h3>
+              <button onClick={() => setIsTaskModalOpen(false)} aria-label="Close task modal" style={{ background: 'transparent', color: 'var(--text-secondary)' }}>
                 <X size={18} />
               </button>
             </div>
 
             <form onSubmit={handleCreateTask} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '4px' }}>
+                <label htmlFor="task-title-input" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '4px' }}>
                   Task Title *
                 </label>
                 <input
+                  id="task-title-input"
                   type="text"
                   required
                   value={taskTitle}
                   onChange={(e) => setTaskTitle(e.target.value)}
-                  placeholder="e.g. Integrate Gemini prompt schemas"
+                  placeholder="e.g. Integrate REST API endpoints"
                   style={{ width: '100%', padding: '10px 12px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border-glass)', borderRadius: '8px', color: '#ffffff', fontSize: '0.85rem' }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '4px' }}>
+                <label htmlFor="task-desc-textarea" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '4px' }}>
                   Description
                 </label>
                 <textarea
+                  id="task-desc-textarea"
                   rows={2}
                   value={taskDesc}
                   onChange={(e) => setTaskDesc(e.target.value)}
@@ -441,10 +475,11 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '4px' }}>
+                  <label htmlFor="task-assignee-select" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '4px' }}>
                     Assign To
                   </label>
                   <select
+                    id="task-assignee-select"
                     value={taskAssignee}
                     onChange={(e) => setTaskAssignee(e.target.value)}
                     style={{ width: '100%', padding: '10px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border-glass)', borderRadius: '8px', color: '#ffffff', fontSize: '0.85rem' }}
@@ -458,10 +493,11 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '4px' }}>
+                  <label htmlFor="task-priority-select" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '4px' }}>
                     Priority
                   </label>
                   <select
+                    id="task-priority-select"
                     value={taskPriority}
                     onChange={(e) => setTaskPriority(e.target.value as any)}
                     style={{ width: '100%', padding: '10px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border-glass)', borderRadius: '8px', color: '#ffffff', fontSize: '0.85rem' }}

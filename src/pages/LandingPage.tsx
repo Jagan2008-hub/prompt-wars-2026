@@ -29,13 +29,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '80px', paddingBottom: '80px' }}>
       
       {/* Hero Section */}
-      <section style={{
-        position: 'relative',
-        padding: '80px 24px 40px',
-        textAlign: 'center',
-        background: 'radial-gradient(ellipse at 50% 10%, rgba(99, 102, 241, 0.2), transparent 70%)',
-        overflow: 'hidden',
-      }}>
+      <section 
+        aria-label="Hero"
+        style={{
+          position: 'relative',
+          padding: '80px 24px 40px',
+          textAlign: 'center',
+          background: 'radial-gradient(ellipse at 50% 10%, rgba(99, 102, 241, 0.2), transparent 70%)',
+          overflow: 'hidden',
+        }}
+      >
         {/* Glow ambient decorations */}
         <div style={{ position: 'absolute', top: '10%', left: '15%', width: '300px', height: '300px', background: 'rgba(6, 182, 212, 0.12)', filter: 'blur(80px)', borderRadius: '50%', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', top: '20%', right: '15%', width: '350px', height: '350px', background: 'rgba(139, 92, 246, 0.15)', filter: 'blur(90px)', borderRadius: '50%', pointerEvents: 'none' }} />
@@ -57,7 +60,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
             marginBottom: '28px',
           }}>
             <Sparkles size={15} />
-            <span>Prompt Wars Hackathon 2026 · AI Team Formation Platform</span>
+            <span>Prompt Wars Hackathon 2026 · Smart Team Formation Platform</span>
           </div>
 
           {/* Heading */}
@@ -81,7 +84,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
             margin: '0 auto 36px',
             lineHeight: 1.6,
           }}>
-            ProjectMatch uses Google Gemini AI to match builders by skills, roles, availability, and learning goals — then detects skill bottlenecks to assemble balanced, high-velocity dream teams.
+            ProjectMatch matches builders by skills, roles, availability, experience level, and learning goals — then detects skill bottlenecks to assemble balanced, high-velocity teams.
           </p>
 
           {/* Value Equation Banner */}
@@ -102,7 +105,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
           }}>
             <span style={{ color: 'var(--accent-cyan)' }}>You</span>
             <span style={{ color: 'var(--text-muted)' }}>+</span>
-            <span style={{ color: 'var(--accent-primary)' }}>Gemini AI Engine</span>
+            <span style={{ color: 'var(--accent-primary)' }}>Smart Matching</span>
             <span style={{ color: 'var(--text-muted)' }}>+</span>
             <span style={{ color: 'var(--accent-emerald)' }}>Complementary Builders</span>
             <span style={{ color: 'var(--text-muted)' }}>=</span>
@@ -116,7 +119,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
               className="btn-primary"
               style={{ padding: '14px 34px', fontSize: '1.05rem' }}
             >
-              <span>Try the AI Demo</span>
+              <span>Find Teammates</span>
               <ArrowRight size={18} />
             </button>
 
@@ -144,7 +147,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
           }}>
             <div>
               <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#ffffff' }}>94%</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Peak Synergy Score</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Peak Compatibility</div>
             </div>
             <div>
               <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>100%</div>
@@ -158,23 +161,25 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
         </div>
       </section>
 
-      {/* Interactive AI Preview Demo Box with 4 Tabs */}
+      {/* Interactive Preview Demo Box with 4 Tabs */}
       <section style={{ maxWidth: '1120px', margin: '0 auto', padding: '0 24px', width: '100%' }}>
         <div className="glass-card" style={{ padding: '36px', border: '1px solid rgba(99, 102, 241, 0.35)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '28px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-cyan)', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase' }}>
                 <Zap size={16} />
-                <span>Live AI Synergy Simulation</span>
+                <span>Live Match Simulation</span>
               </div>
-              <h3 style={{ fontSize: '1.5rem', color: '#ffffff', marginTop: '4px' }}>
+              <h2 style={{ fontSize: '1.5rem', color: '#ffffff', marginTop: '4px' }}>
                 PulseSense AI — Team Match Preview
-              </h3>
+              </h2>
             </div>
 
             {/* Interactive Mode Tabs */}
-            <div style={{ display: 'flex', gap: '6px', background: 'rgba(0, 0, 0, 0.3)', padding: '4px', borderRadius: 'var(--radius-full)', border: '1px solid var(--border-glass)', flexWrap: 'wrap' }}>
+            <div role="tablist" aria-label="Match Preview Modes" style={{ display: 'flex', gap: '6px', background: 'rgba(0, 0, 0, 0.3)', padding: '4px', borderRadius: 'var(--radius-full)', border: '1px solid var(--border-glass)', flexWrap: 'wrap' }}>
               <button
+                role="tab"
+                aria-selected={activeTab === 'match'}
                 onClick={() => setActiveTab('match')}
                 style={{
                   padding: '6px 14px',
@@ -188,6 +193,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
                 Candidate Match
               </button>
               <button
+                role="tab"
+                aria-selected={activeTab === 'gap'}
                 onClick={() => setActiveTab('gap')}
                 style={{
                   padding: '6px 14px',
@@ -201,6 +208,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
                 Skill Gap Matrix
               </button>
               <button
+                role="tab"
+                aria-selected={activeTab === 'team'}
                 onClick={() => setActiveTab('team')}
                 style={{
                   padding: '6px 14px',
@@ -211,9 +220,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
                   color: activeTab === 'team' ? '#ffffff' : 'var(--text-secondary)',
                 }}
               >
-                AI Dream Team
+                Recommended Team
               </button>
               <button
+                role="tab"
+                aria-selected={activeTab === 'dna'}
                 onClick={() => setActiveTab('dna')}
                 style={{
                   padding: '6px 14px',
@@ -238,7 +249,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
                     A
                   </div>
                   <div>
-                    <h4 style={{ color: '#ffffff', fontSize: '1.1rem' }}>Arjun Mehta</h4>
+                    <h3 style={{ color: '#ffffff', fontSize: '1.1rem' }}>Arjun Mehta</h3>
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Frontend Lead · IIT 3rd Year</div>
                   </div>
                 </div>
@@ -259,14 +270,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#ffffff' }}>High Complementary Synergy</div>
                     <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                      Arjun completely fulfills the missing Frontend role and pairs with Rahul's AI models for real-time ECG telemetry.
+                      Arjun completely fulfills the missing Frontend role and pairs with Rahul's backend for real-time telemetry.
                     </p>
                   </div>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
-                    <span>Skill Alignment (35%)</span>
+                    <span>Skill Alignment (30%)</span>
                     <span style={{ color: '#ffffff', fontWeight: 600 }}>96%</span>
                   </div>
                   <div style={{ width: '100%', height: '5px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
@@ -307,7 +318,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
 
               <div style={{ padding: '14px', background: 'rgba(244, 63, 94, 0.08)', borderRadius: '10px', border: '1px solid rgba(244, 63, 94, 0.25)', marginTop: '8px' }}>
                 <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#fda4af', marginBottom: '4px' }}>
-                  AI Recommendation to Close Gap:
+                  Recommendation to Close Gap:
                 </div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                   Invite <strong>Priya Sharma (NID Design Expert)</strong> to design the clinical interface in Figma, raising team compatibility to 96%.
@@ -316,20 +327,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
             </div>
           )}
 
-          {/* Tab 3: AI Dream Team View */}
+          {/* Tab 3: Recommended Team View */}
           {activeTab === 'team' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
                 <div>
                   <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#ffffff' }}>
-                    Recommended 4-Person Dream Team
+                    Recommended 4-Person Team
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                     Assembled for 100% role coverage and zero single-points-of-failure.
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 14px', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: 'var(--radius-full)', color: '#6ee7b7', fontWeight: 700, fontSize: '0.9rem' }}>
-                  <span>95% Team Synergy</span>
+                  <span>95% Team Compatibility</span>
                 </div>
               </div>
 
@@ -337,7 +348,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
                 <div style={{ padding: '12px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '10px', border: '1px solid var(--border-glass)' }}>
                   <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#ffffff' }}>Rahul Varma</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', fontWeight: 600 }}>AI/ML Engineer</div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '4px' }}>PyTorch, Gemini, FastAPI</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '4px' }}>PyTorch, FastAPI, Python</div>
                 </div>
 
                 <div style={{ padding: '12px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '10px', border: '1px solid var(--border-glass)' }}>
@@ -369,7 +380,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
               execution: 94,
               leadership: 88,
               learning: 97,
-              dnaSummary: 'Elite Product & Deep-Tech Squad: High machine learning precision paired with rapid interactive Figma UI prototyping.'
+              dnaSummary: 'Elite Product & Engineering Squad: High technical precision paired with rapid interactive Figma UI prototyping.'
             }} />
           )}
         </div>
@@ -393,7 +404,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
           <div className="glass-card" style={{ padding: '24px' }}>
             <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-primary)', marginBottom: '12px' }}>01</div>
-            <h4 style={{ fontSize: '1.1rem', color: '#ffffff', marginBottom: '6px' }}>Build Profile</h4>
+            <h3 style={{ fontSize: '1.1rem', color: '#ffffff', marginBottom: '6px' }}>Build Profile</h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
               Specify your tech stack, schedule availability, and skills you want to learn.
             </p>
@@ -401,7 +412,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
 
           <div className="glass-card" style={{ padding: '24px' }}>
             <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-cyan)', marginBottom: '12px' }}>02</div>
-            <h4 style={{ fontSize: '1.1rem', color: '#ffffff', marginBottom: '6px' }}>Define Project</h4>
+            <h3 style={{ fontSize: '1.1rem', color: '#ffffff', marginBottom: '6px' }}>Define Project</h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
               Publish hackathon ideas, desired team size, required roles, and weekly pace.
             </p>
@@ -409,23 +420,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
 
           <div className="glass-card" style={{ padding: '24px' }}>
             <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-emerald)', marginBottom: '12px' }}>03</div>
-            <h4 style={{ fontSize: '1.1rem', color: '#ffffff', marginBottom: '6px' }}>Detect Gaps</h4>
+            <h3 style={{ fontSize: '1.1rem', color: '#ffffff', marginBottom: '6px' }}>Detect Gaps</h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-              AI analyzes team roster to highlight covered, partial, and unstaffed skills.
+              System analyzes team roster to highlight covered, partial, and unstaffed skills.
             </p>
           </div>
 
           <div className="glass-card" style={{ padding: '24px' }}>
             <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-amber)', marginBottom: '12px' }}>04</div>
-            <h4 style={{ fontSize: '1.1rem', color: '#ffffff', marginBottom: '6px' }}>Assemble Squad</h4>
+            <h3 style={{ fontSize: '1.1rem', color: '#ffffff', marginBottom: '6px' }}>Assemble Squad</h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-              Gemini AI generates an optimal 3–5 person squad with collective Team DNA.
+              Smart engine recommends an optimal 3–5 person squad with collective Team DNA.
             </p>
           </div>
 
           <div className="glass-card" style={{ padding: '24px' }}>
             <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ec4899', marginBottom: '12px' }}>05</div>
-            <h4 style={{ fontSize: '1.1rem', color: '#ffffff', marginBottom: '6px' }}>Sprint & Deliver</h4>
+            <h3 style={{ fontSize: '1.1rem', color: '#ffffff', marginBottom: '6px' }}>Sprint & Deliver</h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
               Collaborate on Kanban tasks, track sprint progress, and win hackathons.
             </p>
@@ -450,9 +461,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
             <div style={{ width: '44px', height: '44px', borderRadius: '10px', background: 'rgba(99, 102, 241, 0.15)', border: '1px solid rgba(99, 102, 241, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
               <Zap size={22} color="var(--accent-primary)" />
             </div>
-            <h3 style={{ fontSize: '1.25rem', color: '#ffffff', marginBottom: '8px' }}>Multi-Variable AI Matching</h3>
+            <h3 style={{ fontSize: '1.25rem', color: '#ffffff', marginBottom: '8px' }}>Multi-Factor Smart Matching</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6 }}>
-              Gemini AI analyzes technical proficiencies, role preferences, weekly available hours, and learning goals to produce verifiable match reasons.
+              Match engine analyzes technical proficiencies, role preferences, weekly available hours, and learning goals to produce transparent compatibility breakdowns.
             </p>
           </div>
 
@@ -462,7 +473,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
             </div>
             <h3 style={{ fontSize: '1.25rem', color: '#ffffff', marginBottom: '8px' }}>Real-time Skill Gap Detection</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6 }}>
-              Instantly see which core competencies your project is missing and get automated candidate suggestions who specialize in those missing skills.
+              Instantly see which core competencies your project is missing and get candidate suggestions who specialize in those missing skills.
             </p>
           </div>
 
@@ -470,9 +481,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
             <div style={{ width: '44px', height: '44px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
               <Users size={22} color="var(--accent-emerald)" />
             </div>
-            <h3 style={{ fontSize: '1.25rem', color: '#ffffff', marginBottom: '8px' }}>AI Dream Team Assembly</h3>
+            <h3 style={{ fontSize: '1.25rem', color: '#ffffff', marginBottom: '8px' }}>Team Recommendation Engine</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6 }}>
-              Generate complete 3–5 person multidisciplinary squads with balanced role distributions, schedule synergy, and zero single-points-of-failure.
+              Recommend complete 3–5 person multidisciplinary squads with balanced role distributions, schedule synergy, and zero single-points-of-failure.
             </p>
           </div>
         </div>
@@ -493,14 +504,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ navigate }) => {
             Ready to form your winning team?
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto 32px' }}>
-            Create your builder profile in 60 seconds and let Gemini AI match you with high-synergy projects.
+            Create your builder profile in 60 seconds and find high-compatibility projects and teammates.
           </p>
           <button
             onClick={() => navigate('/community')}
             className="btn-primary"
             style={{ padding: '16px 36px', fontSize: '1.1rem' }}
           >
-            <span>Launch Interactive AI Demo</span>
+            <span>Get Started</span>
             <ArrowRight size={18} />
           </button>
         </div>

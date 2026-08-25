@@ -4,7 +4,7 @@ import { useApp } from '../context/AppContext';
 import { UserProfile, RoleType, ExperienceLevel } from '../types';
 import { ALL_AVAILABLE_SKILLS, ALL_ROLES } from '../data/mockData';
 import { CompatibilityRing } from '../components/CompatibilityRing';
-import { calculateLocalMatch } from '../lib/gemini';
+import { calculateLocalMatch } from '../lib/matching';
 
 interface CommunityPageProps {
   openProfileModal: (profile: UserProfile) => void;
@@ -34,7 +34,7 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
       const compSkills = p.skills.filter(s => !currentUser.skills.includes(s)).length;
       matchScore = Math.min(97, 82 + (sharedInterests * 4) + (compSkills * 2));
     }
-    const isAiRecommended = matchScore >= 92;
+    const isTopRecommended = matchScore >= 90;
 
     const sharedSkills = p.skills.filter(s => currentUser?.skills.includes(s));
     const complementarySkills = p.skills.filter(s => !currentUser?.skills.includes(s));
@@ -42,7 +42,7 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
     return {
       ...p,
       matchScore,
-      isAiRecommended,
+      isTopRecommended,
       sharedSkills,
       complementarySkills,
     };
@@ -101,6 +101,7 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
             <Search size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '14px' }} />
             <input
               type="text"
+              aria-label="Search builders"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by name, skill (e.g. PyTorch, React, UI/UX), role, or university..."
@@ -120,11 +121,12 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <ArrowUpDown size={16} color="var(--text-muted)" />
             <select
+              aria-label="Sort options"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
               style={{ padding: '12px 16px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border-glass)', borderRadius: '10px', color: '#ffffff', fontSize: '0.85rem', outline: 'none' }}
             >
-              <option value="match" style={{ background: '#0f172a' }}>Sort: Highest AI Match</option>
+              <option value="match" style={{ background: '#0f172a' }}>Sort: Best Match</option>
               <option value="hours" style={{ background: '#0f172a' }}>Sort: Most Available Hours</option>
               <option value="name" style={{ background: '#0f172a' }}>Sort: Alphabetical (Name)</option>
             </select>
@@ -136,8 +138,9 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
           
           {/* Role Filter */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>ROLE:</span>
+            <label htmlFor="comm-role-select" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>ROLE:</label>
             <select
+              id="comm-role-select"
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
               style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-glass)', borderRadius: '8px', color: '#ffffff', fontSize: '0.85rem', outline: 'none' }}
@@ -151,8 +154,9 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
 
           {/* Skill Filter */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>SKILL:</span>
+            <label htmlFor="comm-skill-select" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>SKILL:</label>
             <select
+              id="comm-skill-select"
               value={selectedSkill}
               onChange={(e) => setSelectedSkill(e.target.value)}
               style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-glass)', borderRadius: '8px', color: '#ffffff', fontSize: '0.85rem', outline: 'none' }}
@@ -166,8 +170,9 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
 
           {/* Experience Filter */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>EXPERIENCE:</span>
+            <label htmlFor="comm-exp-select" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>EXPERIENCE:</label>
             <select
+              id="comm-exp-select"
               value={selectedExperience}
               onChange={(e) => setSelectedExperience(e.target.value)}
               style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-glass)', borderRadius: '8px', color: '#ffffff', fontSize: '0.85rem', outline: 'none' }}
@@ -181,8 +186,9 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
 
           {/* Schedule Filter */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>SCHEDULE:</span>
+            <label htmlFor="comm-sched-select" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>SCHEDULE:</label>
             <select
+              id="comm-sched-select"
               value={selectedSchedule}
               onChange={(e) => setSelectedSchedule(e.target.value)}
               style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border-glass)', borderRadius: '8px', color: '#ffffff', fontSize: '0.85rem', outline: 'none' }}
@@ -223,6 +229,7 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
               setSelectedRole('All');
               setSelectedSkill('All');
               setSelectedExperience('All');
+              setSelectedSchedule('All');
               setSearchQuery('');
             }}
             className="btn-primary"
@@ -244,7 +251,7 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                   gap: '16px',
-                  border: profile.isAiRecommended 
+                  border: profile.isTopRecommended 
                     ? '1px solid rgba(16, 185, 129, 0.45)' 
                     : profile.id === currentUser?.id 
                     ? '1px solid rgba(99, 102, 241, 0.5)' 
@@ -272,7 +279,7 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
                       </div>
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <h3 style={{ fontSize: '1.15rem', color: '#ffffff' }}>{profile.full_name}</h3>
+                          <h2 style={{ fontSize: '1.15rem', color: '#ffffff' }}>{profile.full_name}</h2>
                           {profile.id === currentUser?.id && (
                             <span style={{ fontSize: '0.65rem', padding: '1px 6px', background: 'rgba(99, 102, 241, 0.25)', color: '#c7d2fe', borderRadius: '4px', fontWeight: 700 }}>YOU</span>
                           )}
@@ -286,11 +293,11 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
                     <CompatibilityRing score={profile.matchScore} size={48} strokeWidth={4} showLabel={false} />
                   </div>
 
-                  {/* AI Recommended Badge */}
-                  {profile.isAiRecommended && (
+                  {/* Top Recommended Badge */}
+                  {profile.isTopRecommended && (
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '3px 10px', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: 'var(--radius-full)', color: '#6ee7b7', fontSize: '0.7rem', fontWeight: 700, marginBottom: '10px' }}>
                       <Sparkles size={12} />
-                      <span>AI Top Recommendation</span>
+                      <span>Top Match</span>
                     </div>
                   )}
 

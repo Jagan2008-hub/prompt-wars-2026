@@ -3,7 +3,7 @@ import { Search, Plus, Sparkles, FolderGit2, Calendar, Clock, Users, Zap, ArrowR
 import { useApp } from '../context/AppContext';
 import { ProjectCategory, Project } from '../types';
 import { CompatibilityRing } from '../components/CompatibilityRing';
-import { calculateLocalMatch } from '../lib/gemini';
+import { calculateLocalMatch } from '../lib/matching';
 
 interface ProjectsPageProps {
   navigate: (route: string) => void;
@@ -64,6 +64,7 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ navigate, openCreate
           <Search size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '14px' }} />
           <input
             type="text"
+            aria-label="Search projects"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search projects by keywords, required skills (e.g. AI/ML, React, Hardware)..."
@@ -81,12 +82,13 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ navigate, openCreate
         </div>
 
         {/* Category Pills */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+        <div role="region" aria-label="Project categories" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
           {CATEGORIES.map(cat => {
             const isSelected = selectedCategory === cat;
             return (
               <button
                 key={cat}
+                aria-pressed={isSelected}
                 onClick={() => setSelectedCategory(cat)}
                 style={{
                   padding: '6px 14px',
@@ -120,7 +122,6 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ navigate, openCreate
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '24px' }}>
           {filteredProjects.map(project => {
             const match = currentUser ? calculateLocalMatch(project, currentUser) : { overallScore: 85 };
-            const isUserMember = project.members.some(m => m.user_id === currentUser?.id);
 
             return (
               <div
@@ -153,9 +154,9 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ navigate, openCreate
                     <CompatibilityRing score={match.overallScore} size={48} strokeWidth={4} showLabel={false} />
                   </div>
 
-                  <h3 style={{ fontSize: '1.25rem', color: '#ffffff', marginBottom: '8px', lineHeight: 1.3 }}>
+                  <h2 style={{ fontSize: '1.25rem', color: '#ffffff', marginBottom: '8px', lineHeight: 1.3 }}>
                     {project.title}
-                  </h3>
+                  </h2>
 
                   <p style={{
                     fontSize: '0.85rem',
@@ -245,10 +246,10 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ navigate, openCreate
                     onClick={() => navigate(`/projects/${project.id}/ai-team`)}
                     className="btn-secondary"
                     style={{ padding: '9px 14px', fontSize: '0.85rem' }}
-                    title="AI Dream Team Lab"
+                    title="Team Builder Lab"
                   >
                     <Zap size={15} color="var(--accent-cyan)" />
-                    <span>AI Team</span>
+                    <span>Team Builder</span>
                   </button>
                 </div>
 

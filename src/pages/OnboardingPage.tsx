@@ -84,7 +84,6 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
   };
 
   const handleSaveAndNext = () => {
-    // Update state in context
     updateCurrentUser({
       full_name: fullName,
       college,
@@ -107,7 +106,6 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
     if (step < 4) {
       setStep(step + 1);
     } else {
-      // Finished Onboarding!
       confetti({
         particleCount: 80,
         spread: 70,
@@ -127,12 +125,12 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
             <span style={{ fontSize: '0.8rem', color: 'var(--accent-cyan)', fontWeight: 700, textTransform: 'uppercase' }}>
               Step {step} of 4 · Builder Profile Setup
             </span>
-            <h2 style={{ fontSize: '1.4rem', color: '#ffffff', marginTop: '2px' }}>
+            <h1 style={{ fontSize: '1.4rem', color: '#ffffff', marginTop: '2px' }}>
               {step === 1 && 'Basic Background & Academic Info'}
               {step === 2 && 'Technical Skills & Track Record'}
               {step === 3 && 'Preferred Roles & Schedule Availability'}
               {step === 4 && 'Learning Goals & Portfolio Links'}
-            </h2>
+            </h1>
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ffffff' }}>
@@ -155,10 +153,11 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
         {step === 1 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+              <label htmlFor="onb-fullname-input" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                 Full Name *
               </label>
               <input
+                id="onb-fullname-input"
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
@@ -169,10 +168,11 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+                <label htmlFor="onb-college-input" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                   University / College *
                 </label>
                 <input
+                  id="onb-college-input"
                   type="text"
                   value={college}
                   onChange={(e) => setCollege(e.target.value)}
@@ -182,10 +182,11 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+                <label htmlFor="onb-course-input" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                   Department / Course *
                 </label>
                 <input
+                  id="onb-course-input"
                   type="text"
                   value={course}
                   onChange={(e) => setCourse(e.target.value)}
@@ -196,10 +197,11 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+              <label htmlFor="onb-year-select" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                 Year of Study
               </label>
               <select
+                id="onb-year-select"
                 value={yearOfStudy}
                 onChange={(e) => setYearOfStudy(e.target.value)}
                 style={{ width: '100%', padding: '10px 14px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border-glass)', borderRadius: '8px', color: '#ffffff', fontSize: '0.9rem', outline: 'none' }}
@@ -213,10 +215,11 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+              <label htmlFor="onb-bio-textarea" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                 Short Bio
               </label>
               <textarea
+                id="onb-bio-textarea"
                 rows={3}
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
@@ -231,9 +234,9 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
         {step === 2 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
+              <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
                 Select Your Core Skills
-              </label>
+              </span>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
                 {ALL_AVAILABLE_SKILLS.map(s => {
                   const isSelected = skills.includes(s);
@@ -241,6 +244,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
                     <button
                       type="button"
                       key={s}
+                      aria-pressed={isSelected}
                       onClick={() => toggleSkill(s)}
                       style={{
                         padding: '6px 12px',
@@ -261,6 +265,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
               <div style={{ display: 'flex', gap: '8px' }}>
                 <input
                   type="text"
+                  aria-label="Add custom skill"
                   value={customSkill}
                   onChange={(e) => setCustomSkill(e.target.value)}
                   placeholder="Add another skill..."
@@ -274,14 +279,15 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+              <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                 Experience Level
-              </label>
+              </span>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                 {(['Beginner', 'Intermediate', 'Advanced'] as ExperienceLevel[]).map(lvl => (
                   <button
                     key={lvl}
                     type="button"
+                    aria-pressed={experienceLevel === lvl}
                     onClick={() => setExperienceLevel(lvl)}
                     style={{
                       padding: '12px',
@@ -300,10 +306,11 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+              <label htmlFor="onb-exp-summary" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                 Experience & Previous Hackathons / Projects
               </label>
               <textarea
+                id="onb-exp-summary"
                 rows={3}
                 value={experienceSummary}
                 onChange={(e) => setExperienceSummary(e.target.value)}
@@ -318,9 +325,9 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
         {step === 3 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
+              <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
                 Preferred Roles in a Team
-              </label>
+              </span>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                 {ALL_ROLES.map(r => {
                   const isSelected = preferredRoles.includes(r);
@@ -328,6 +335,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
                     <button
                       type="button"
                       key={r}
+                      aria-pressed={isSelected}
                       onClick={() => toggleRole(r)}
                       style={{
                         padding: '6px 14px',
@@ -347,9 +355,9 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
+              <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
                 Days Available for Sprints
-              </label>
+              </span>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                 {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => {
                   const isSelected = daysAvailable.includes(day);
@@ -357,6 +365,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
                     <button
                       type="button"
                       key={day}
+                      aria-pressed={isSelected}
                       onClick={() => toggleDay(day)}
                       style={{
                         padding: '8px 16px',
@@ -377,10 +386,11 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+                <label htmlFor="onb-hours-slider" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                   Weekly Commitment: {hoursPerWeek} hrs / week
                 </label>
                 <input
+                  id="onb-hours-slider"
                   type="range"
                   min={5}
                   max={35}
@@ -392,10 +402,11 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+                <label htmlFor="onb-schedule-select" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                   Working Schedule Preference
                 </label>
                 <select
+                  id="onb-schedule-select"
                   value={schedulePref}
                   onChange={(e) => setSchedulePref(e.target.value as any)}
                   style={{ width: '100%', padding: '10px 14px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border-glass)', borderRadius: '8px', color: '#ffffff', fontSize: '0.9rem', outline: 'none' }}
@@ -414,9 +425,9 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
         {step === 4 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
-                Skills You Want to Learn (AI Complementary Matching)
-              </label>
+              <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
+                Skills You Want to Learn (Complementary Skill Growth)
+              </span>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
                 {learningGoals.map(g => (
                   <span
@@ -434,7 +445,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
                     }}
                   >
                     <span>🎯 {g}</span>
-                    <button type="button" onClick={() => removeGoal(g)} style={{ background: 'transparent', color: '#fda4af' }}>×</button>
+                    <button type="button" aria-label={`Remove goal ${g}`} onClick={() => removeGoal(g)} style={{ background: 'transparent', color: '#fda4af' }}>×</button>
                   </span>
                 ))}
               </div>
@@ -442,6 +453,7 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
               <div style={{ display: 'flex', gap: '8px' }}>
                 <input
                   type="text"
+                  aria-label="Add custom learning goal"
                   value={customGoal}
                   onChange={(e) => setCustomGoal(e.target.value)}
                   placeholder="e.g. Distributed Systems, Three.js, PyTorch..."
@@ -456,10 +468,11 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+                <label htmlFor="onb-github-input" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                   GitHub Profile URL
                 </label>
                 <input
+                  id="onb-github-input"
                   type="url"
                   value={githubUrl}
                   onChange={(e) => setGithubUrl(e.target.value)}
@@ -469,10 +482,11 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+                <label htmlFor="onb-linkedin-input" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                   LinkedIn Profile URL
                 </label>
                 <input
+                  id="onb-linkedin-input"
                   type="url"
                   value={linkedinUrl}
                   onChange={(e) => setLinkedinUrl(e.target.value)}
@@ -482,10 +496,11 @@ export const OnboardingPage: React.FC<OnboardingPageProps> = ({ navigate }) => {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+                <label htmlFor="onb-portfolio-input" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                   Portfolio / Website URL
                 </label>
                 <input
+                  id="onb-portfolio-input"
                   type="url"
                   value={portfolioUrl}
                   onChange={(e) => setPortfolioUrl(e.target.value)}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Users, FolderGit2, LayoutDashboard, User, LogIn, LogOut, Menu, X, Bell, ChevronDown } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
@@ -23,22 +23,39 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, navigate }) => {
     { label: 'My Profile', route: '/profile', icon: User, requiresAuth: true },
   ];
 
+  // Close dropdowns on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setDemoMenuOpen(false);
+        setNotifOpen(false);
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
-    <nav style={{
-      position: 'sticky',
-      top: 0,
-      zIndex: 100,
-      background: 'rgba(9, 13, 22, 0.85)',
-      backdropFilter: 'blur(16px)',
-      borderBottom: '1px solid var(--border-glass)',
-      padding: '12px 24px',
-    }}>
+    <nav
+      aria-label="Main Navigation"
+      style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+        background: 'rgba(9, 13, 22, 0.85)',
+        backdropFilter: 'blur(16px)',
+        borderBottom: '1px solid var(--border-glass)',
+        padding: '12px 24px',
+      }}
+    >
       <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         
         {/* Brand Logo */}
-        <div 
-          onClick={() => navigate('/')} 
-          style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+        <button 
+          onClick={() => navigate('/')}
+          aria-label="ProjectMatch Home"
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'transparent', border: 'none', padding: 0, textAlign: 'left' }}
         >
           <div style={{
             width: '36px',
@@ -65,13 +82,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, navigate }) => {
               fontWeight: 700,
               marginTop: '-3px'
             }}>
-              AI Team Formation
+              Smart Team Formation
             </span>
           </div>
-        </div>
+        </button>
 
         {/* Desktop Navigation Links */}
-        <div style={{ alignItems: 'center', gap: '6px' }} className="nav-desktop-links">
+        <div style={{ alignItems: 'center', gap: '6px' }} className="nav-desktop-links" role="menubar">
           {navLinks.map(link => {
             if (link.requiresAuth && !isAuthenticated) return null;
             const isActive = currentRoute === link.route;
@@ -80,6 +97,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, navigate }) => {
               <button
                 key={link.route}
                 onClick={() => navigate(link.route)}
+                role="menuitem"
+                aria-current={isActive ? 'page' : undefined}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -108,6 +127,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, navigate }) => {
           <div style={{ position: 'relative' }}>
             <button
               onClick={() => setDemoMenuOpen(!demoMenuOpen)}
+              aria-expanded={demoMenuOpen}
+              aria-haspopup="true"
+              aria-label="Switch demo student persona"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -130,6 +152,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, navigate }) => {
             {demoMenuOpen && (
               <div 
                 className="glass-card" 
+                role="menu"
+                aria-label="Demo Personas"
                 style={{
                   position: 'absolute',
                   top: '110%',
@@ -148,6 +172,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, navigate }) => {
                 {profiles.slice(0, 5).map(p => (
                   <button
                     key={p.id}
+                    role="menuitem"
                     onClick={() => {
                       switchDemoUser(p.id);
                       setDemoMenuOpen(false);
@@ -180,6 +205,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, navigate }) => {
             <div style={{ position: 'relative' }}>
               <button
                 onClick={() => setNotifOpen(!notifOpen)}
+                aria-expanded={notifOpen}
+                aria-haspopup="true"
+                aria-label={`Notifications (${unreadCount} unread)`}
                 style={{
                   position: 'relative',
                   width: '36px',
@@ -195,21 +223,26 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, navigate }) => {
               >
                 <Bell size={18} />
                 {unreadCount > 0 && (
-                  <span style={{
-                    position: 'absolute',
-                    top: '2px',
-                    right: '2px',
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    background: 'var(--accent-rose)',
-                  }}></span>
+                  <span 
+                    aria-hidden="true"
+                    style={{
+                      position: 'absolute',
+                      top: '2px',
+                      right: '2px',
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      background: 'var(--accent-rose)',
+                    }}
+                  ></span>
                 )}
               </button>
 
               {notifOpen && (
                 <div 
                   className="glass-card" 
+                  role="region"
+                  aria-label="Notifications"
                   style={{
                     position: 'absolute',
                     top: '120%',
@@ -225,8 +258,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, navigate }) => {
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '240px', overflowY: 'auto' }}>
                     {notifications.map(n => (
-                      <div 
+                      <button 
                         key={n.id}
+                        type="button"
                         onClick={() => {
                           markNotificationRead(n.id);
                           if (n.link) navigate(n.link);
@@ -238,12 +272,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, navigate }) => {
                           background: n.read ? 'transparent' : 'rgba(99, 102, 241, 0.1)',
                           border: '1px solid var(--border-glass)',
                           cursor: 'pointer',
+                          textAlign: 'left',
+                          width: '100%',
                         }}
                       >
                         <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#ffffff' }}>{n.title}</div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>{n.message}</div>
                         <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '4px' }}>{n.timestamp}</div>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -255,6 +291,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, navigate }) => {
           {isAuthenticated ? (
             <button
               onClick={() => logout()}
+              aria-label="Logout"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -274,6 +311,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, navigate }) => {
           ) : (
             <button
               onClick={() => navigate('/auth')}
+              aria-label="Login"
               className="btn-primary"
               style={{ padding: '8px 18px', fontSize: '0.85rem' }}
             >
@@ -285,6 +323,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, navigate }) => {
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-expanded={mobileMenuOpen}
+            aria-label="Toggle navigation menu"
             style={{
               display: 'none',
               background: 'transparent',

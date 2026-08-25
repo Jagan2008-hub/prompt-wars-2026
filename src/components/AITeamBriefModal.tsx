@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { X, Copy, Check, FileText, Sparkles, FolderGit2, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Copy, Check, FileText, FolderGit2, ArrowRight } from 'lucide-react';
 import { Project, DreamTeamResult } from '../types';
 
 interface AITeamBriefModalProps {
@@ -19,16 +19,28 @@ export const AITeamBriefModal: React.FC<AITeamBriefModalProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
-  const briefText = `📋 PROJECTMATCH AI TEAM BRIEF
+  const briefText = `📋 PROJECTMATCH TEAM BRIEF
 ==================================================
 Project: ${project.title} (${project.category})
-Team Synergy Score: ${dreamTeam.teamCompatibilityScore}%
+Team Compatibility Score: ${dreamTeam.teamCompatibilityScore}%
 Skill Coverage: ${dreamTeam.skillCoverageScore}%
 ==================================================
 
-👥 ASSEMBLED DREAM TEAM:
+👥 RECOMMENDED TEAM:
 ${dreamTeam.recommendedTeam.map((m, idx) => `${idx + 1}. ${m.profile.full_name} — ${m.assignedRole} (${m.matchScore}% Match)
    • Skills Contributed: ${m.contributedSkills.join(', ')}
    • Selection Note: "${m.selectionReason}"`).join('\n\n')}
@@ -47,10 +59,10 @@ ${dreamTeam.strengths.map(s => `✓ ${s}`).join('\n')}
 ⚠️ OPERATIONAL CAVEATS & RISKS:
 ${dreamTeam.potentialRisks.map(r => `• ${r}`).join('\n')}
 
-🚀 FIRST RECOMMENDED ACTION:
+🚀 RECOMMENDED ACTION:
 Kick off Sprint 1 by scoping API interfaces in the Team Workspace and distributing initial Kanban tasks.
 ==================================================
-Generated via ProjectMatch AI · Prompt Wars 2026`;
+Generated via ProjectMatch · Prompt Wars 2026`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(briefText);
@@ -59,19 +71,27 @@ Generated via ProjectMatch AI · Prompt Wars 2026`;
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      zIndex: 1400,
-      background: 'rgba(3, 7, 18, 0.85)',
-      backdropFilter: 'blur(8px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px',
-    }}>
+    <div 
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 1400,
+        background: 'rgba(3, 7, 18, 0.85)',
+        backdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div 
         className="glass-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="team-brief-title"
         style={{
           width: '100%',
           maxWidth: '680px',
@@ -87,6 +107,7 @@ Generated via ProjectMatch AI · Prompt Wars 2026`;
       >
         <button
           onClick={onClose}
+          aria-label="Close brief modal"
           style={{
             position: 'absolute',
             top: '20px',
@@ -107,7 +128,7 @@ Generated via ProjectMatch AI · Prompt Wars 2026`;
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
           <FileText size={22} color="var(--accent-cyan)" />
-          <h3 style={{ fontSize: '1.4rem', color: '#ffffff' }}>AI Team Executive Brief</h3>
+          <h2 id="team-brief-title" style={{ fontSize: '1.4rem', color: '#ffffff' }}>Team Executive Brief</h2>
           <span style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '4px', background: 'rgba(16, 185, 129, 0.15)', color: '#34d399', fontWeight: 700, marginLeft: 'auto' }}>
             Ready to Share
           </span>

@@ -75,16 +75,16 @@ export const AuthPage: React.FC<AuthPageProps> = ({ navigate }) => {
             }}>
               <Sparkles size={24} color="#ffffff" />
             </div>
-            <h2 style={{ fontSize: '1.75rem', color: '#ffffff', marginBottom: '6px' }}>
+            <h1 style={{ fontSize: '1.75rem', color: '#ffffff', marginBottom: '6px' }}>
               {isLogin ? 'Welcome Back' : 'Create Account'}
-            </h2>
+            </h1>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
               {isLogin ? 'Sign in to access your matched teams and projects' : 'Join ProjectMatch to find high-synergy teammates'}
             </p>
           </div>
 
           {/* Mode Switcher Tabs */}
-          <div style={{
+          <div role="tablist" aria-label="Authentication Options" style={{
             display: 'flex',
             background: 'rgba(0, 0, 0, 0.3)',
             padding: '4px',
@@ -94,6 +94,8 @@ export const AuthPage: React.FC<AuthPageProps> = ({ navigate }) => {
           }}>
             <button
               type="button"
+              role="tab"
+              aria-selected={isLogin}
               onClick={() => setIsLogin(true)}
               style={{
                 flex: 1,
@@ -109,6 +111,8 @@ export const AuthPage: React.FC<AuthPageProps> = ({ navigate }) => {
             </button>
             <button
               type="button"
+              role="tab"
+              aria-selected={!isLogin}
               onClick={() => setIsLogin(false)}
               style={{
                 flex: 1,
@@ -133,12 +137,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ navigate }) => {
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {!isLogin && (
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+                <label htmlFor="auth-name-input" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                   Full Name
                 </label>
                 <div style={{ position: 'relative' }}>
                   <User size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
                   <input
+                    id="auth-name-input"
                     type="text"
                     required
                     value={fullName}
@@ -160,12 +165,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ navigate }) => {
             )}
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+              <label htmlFor="auth-email-input" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                 Email Address
               </label>
               <div style={{ position: 'relative' }}>
                 <Mail size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
                 <input
+                  id="auth-email-input"
                   type="email"
                   required
                   value={email}
@@ -186,12 +192,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ navigate }) => {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+              <label htmlFor="auth-password-input" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
                 Password
               </label>
               <div style={{ position: 'relative' }}>
                 <Lock size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
                 <input
+                  id="auth-password-input"
                   type="password"
                   required
                   value={password}
@@ -223,7 +230,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ navigate }) => {
           </form>
         </div>
 
-        {/* 1-Click Demo Personas for Quick Hackathon Showcase */}
+        {/* 1-Click Demo Personas */}
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', marginBottom: '12px', fontWeight: 700 }}>
             ⚡ Quick 1-Click Demo Personas

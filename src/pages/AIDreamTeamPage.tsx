@@ -18,7 +18,7 @@ import {
 import confetti from 'canvas-confetti';
 import { useApp } from '../context/AppContext';
 import { Project, SkillGapItem, DreamTeamResult, UserProfile } from '../types';
-import { detectSkillGaps, generateAIDreamTeam } from '../lib/gemini';
+import { detectSkillGaps, generateRecommendedTeam } from '../lib/matching';
 import { SkillGapBadge } from '../components/SkillGapBadge';
 import { CompatibilityRing } from '../components/CompatibilityRing';
 import { TeamDNAChart } from '../components/TeamDNAChart';
@@ -55,13 +55,12 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
     const gaps = detectSkillGaps(project, profiles);
     setSkillGaps(gaps);
 
-    // Give a smooth 600ms AI synthesis animation
     setTimeout(() => {
-      generateAIDreamTeam(project, profiles).then(res => {
+      generateRecommendedTeam(project, profiles).then(res => {
         setDreamTeam(res);
         setLoadingTeam(false);
       });
-    }, 600);
+    }, 400);
   };
 
   useEffect(() => {
@@ -89,7 +88,7 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
         project.id,
         m.profile.id,
         m.assignedRole,
-        `AI Dream Team invitation for ${project.title} as ${m.assignedRole}!`
+        `Team invitation for ${project.title} as ${m.assignedRole}!`
       );
     });
 
@@ -99,7 +98,7 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
       spread: 80,
       origin: { y: 0.6 }
     });
-    addToast('Batch invitations sent to all AI Dream Team candidates!', 'success');
+    addToast('Batch invitations sent to all recommended team candidates!', 'success');
   };
 
   const missingGaps = skillGaps.filter(g => g.status === 'Missing');
@@ -112,7 +111,7 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
       {/* Back Link */}
       <button
         onClick={() => navigate(`/projects/${project.id}`)}
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'transparent', color: 'var(--text-secondary)', fontSize: '0.9rem' }}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'transparent', color: 'var(--text-secondary)', fontSize: '0.9rem', width: 'fit-content' }}
       >
         <ArrowLeft size={16} />
         <span>Back to {project.title}</span>
@@ -124,11 +123,11 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', background: 'rgba(99, 102, 241, 0.15)', borderRadius: '9999px', color: '#a5b4fc', fontSize: '0.75rem', fontWeight: 600, marginBottom: '8px' }}>
               <Zap size={14} color="var(--accent-cyan)" />
-              <span>Gemini AI Team Architecture Lab</span>
+              <span>Team Builder Lab</span>
             </div>
-            <h1 style={{ fontSize: '2.2rem', color: '#ffffff' }}>AI Dream Team & Skill Gap Detector</h1>
+            <h1 style={{ fontSize: '2.2rem', color: '#ffffff' }}>Team Builder & Skill Gap Analysis</h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', maxWidth: '720px', marginTop: '4px' }}>
-              Our AI engine dynamically evaluates project requirements, calculates a visual skill coverage matrix, and synthesizes a high-synergy multidisciplinary squad.
+              Our matching engine dynamically evaluates project requirements, calculates a visual skill coverage matrix, and recommends a high-compatibility squad.
             </p>
           </div>
 
@@ -139,12 +138,12 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
             style={{ padding: '10px 18px', fontSize: '0.85rem' }}
           >
             <RefreshCw size={15} style={{ animation: loadingTeam ? 'spin 1s linear infinite' : 'none' }} />
-            <span>Regenerate AI Analysis</span>
+            <span>Regenerate Analysis</span>
           </button>
         </div>
       </div>
 
-      {/* SECTION 1: Advanced Skill Gap Detection Matrix */}
+      {/* SECTION 1: Visual Skill Gap Matrix */}
       <div className="glass-card" style={{ padding: '32px', border: '1px solid rgba(6, 182, 212, 0.3)' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
@@ -178,10 +177,10 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
             let statusText = '100% Covered';
             if (gap.status === 'Partial') {
               barColor = 'var(--accent-amber)';
-              statusText = '65% Partial';
+              statusText = `${gap.coveragePercentage}% Partial`;
             } else if (gap.status === 'Missing') {
               barColor = 'var(--accent-rose)';
-              statusText = '15% Missing';
+              statusText = '0% Unstaffed';
             }
 
             return (
@@ -206,9 +205,9 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
         {/* Actionable Talent Recommendations to Plug Gaps */}
         {(missingGaps.length > 0 || partialGaps.length > 0) && (
           <div style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '20px' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '14px' }}>
+            <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', marginBottom: '14px' }}>
               Specific Talent Recommendations to Close Missing & Partial Skills:
-            </div>
+            </h3>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
               {[...missingGaps, ...partialGaps].map(gap => (
@@ -223,9 +222,9 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
                       {gap.suggestedCandidates.map(c => (
                         <div key={c.profile.id} style={{ padding: '10px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', border: '1px solid var(--border-glass)' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                            <span onClick={() => openProfileModal(c.profile)} style={{ color: 'var(--accent-cyan)', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>
+                            <button onClick={() => openProfileModal(c.profile)} style={{ color: 'var(--accent-cyan)', background: 'transparent', fontWeight: 600, fontSize: '0.85rem', textAlign: 'left' }}>
                               {c.profile.full_name} ({c.profile.preferred_roles[0]})
-                            </span>
+                            </button>
                             <button
                               onClick={() => openInviteModal(c.profile)}
                               className="btn-primary"
@@ -252,23 +251,23 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
         )}
       </div>
 
-      {/* SECTION 2: AI Dream Team Assembly + Team DNA + "Why Not Others?" */}
+      {/* SECTION 2: Recommended Team + Team DNA + "Why Not Others?" */}
       <div className="glass-card" style={{ padding: '36px', border: '1px solid rgba(99, 102, 241, 0.4)' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--accent-emerald)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>
               <Sparkles size={15} />
-              <span>Multi-Disciplinary Synergy Engine</span>
+              <span>Multi-Disciplinary Matching Engine</span>
             </div>
             <h2 style={{ fontSize: '1.6rem', color: '#ffffff', marginTop: '2px' }}>
-              Recommended AI Dream Team
+              Recommended Team
             </h2>
           </div>
 
           {dreamTeam && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-              <CompatibilityRing score={dreamTeam.teamCompatibilityScore} size={64} strokeWidth={6} label="Team Synergy" />
+              <CompatibilityRing score={dreamTeam.teamCompatibilityScore} size={64} strokeWidth={6} label="Team Compatibility" />
               <button
                 onClick={() => setIsBriefModalOpen(true)}
                 className="btn-secondary"
@@ -291,8 +290,10 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
 
         {/* Interactive View Switcher Tabs */}
         {dreamTeam && (
-          <div style={{ display: 'flex', gap: '8px', background: 'rgba(0, 0, 0, 0.3)', padding: '4px', borderRadius: 'var(--radius-full)', border: '1px solid var(--border-glass)', width: 'fit-content', marginBottom: '24px' }}>
+          <div role="tablist" aria-label="Team View Options" style={{ display: 'flex', gap: '8px', background: 'rgba(0, 0, 0, 0.3)', padding: '4px', borderRadius: 'var(--radius-full)', border: '1px solid var(--border-glass)', width: 'fit-content', marginBottom: '24px' }}>
             <button
+              role="tab"
+              aria-selected={activeTab === 'squad'}
               onClick={() => setActiveTab('squad')}
               style={{
                 padding: '6px 16px',
@@ -306,6 +307,8 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
               Recommended Squad
             </button>
             <button
+              role="tab"
+              aria-selected={activeTab === 'dna'}
               onClick={() => setActiveTab('dna')}
               style={{
                 padding: '6px 16px',
@@ -319,6 +322,8 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
               Team DNA Profile
             </button>
             <button
+              role="tab"
+              aria-selected={activeTab === 'whynot'}
               onClick={() => setActiveTab('whynot')}
               style={{
                 padding: '6px 16px',
@@ -337,7 +342,7 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
         {loadingTeam ? (
           <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)' }}>
             <Sparkles size={32} color="var(--accent-primary)" style={{ animation: 'spin 2s linear infinite', marginBottom: '16px' }} />
-            <div style={{ fontSize: '1.1rem', color: '#ffffff' }}>Gemini AI assembling optimal complementary dream squad...</div>
+            <div style={{ fontSize: '1.1rem', color: '#ffffff' }}>Analyzing compatibility and building your recommended team...</div>
             <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '6px' }}>Balancing technical roles, schedule overlap, and learning motivations.</div>
           </div>
         ) : dreamTeam ? (
@@ -392,9 +397,9 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
                                 {member.profile.full_name.charAt(0)}
                               </div>
                               <div>
-                                <h4 onClick={() => openProfileModal(member.profile)} style={{ fontSize: '1rem', color: '#ffffff', cursor: 'pointer' }}>
+                                <button onClick={() => openProfileModal(member.profile)} style={{ fontSize: '1rem', color: '#ffffff', background: 'transparent', fontWeight: 700, textAlign: 'left' }}>
                                   {member.profile.full_name}
-                                </h4>
+                                </button>
                                 <div style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)', fontWeight: 600 }}>
                                   {member.assignedRole}
                                 </div>
@@ -480,9 +485,9 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
             {/* TAB 3: Why Not The Others? */}
             {activeTab === 'whynot' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                   Transparency is a core design principle of ProjectMatch. Here is why alternative community candidates were not selected for this specific squad combination:
-                </div>
+                </p>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
                   {dreamTeam.rejectedCandidates?.map((rej, idx) => (
@@ -506,7 +511,7 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
 
       </div>
 
-      {/* AI Team Executive Brief Modal */}
+      {/* Team Executive Brief Modal */}
       {dreamTeam && (
         <AITeamBriefModal
           isOpen={isBriefModalOpen}

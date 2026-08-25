@@ -30,7 +30,7 @@ export const Footer: React.FC = () => {
               </span>
             </div>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', lineHeight: 1.6 }}>
-              AI-powered team formation platform matching skills, availability, and complementary abilities with real-time skill gap detection.
+              Smart team formation platform matching skills, availability, and complementary abilities with real-time skill gap detection.
             </p>
           </div>
 
@@ -40,10 +40,10 @@ export const Footer: React.FC = () => {
                 Platform
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                <span>AI Matching Engine</span>
-                <span>Skill Gap Detector</span>
-                <span>AI Dream Team</span>
-                <span>Team Workspaces</span>
+                <span>Smart Matching Engine</span>
+                <span>Skill Gap Analysis</span>
+                <span>Team Builder Lab</span>
+                <span>Sprint Workspaces</span>
               </div>
             </div>
 
@@ -64,10 +64,10 @@ export const Footer: React.FC = () => {
                 Stack
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Cpu size={14} color="var(--accent-cyan)" /> Google Gemini API</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Shield size={14} color="var(--accent-emerald)" /> Supabase Database</span>
-                <span>React + Vite SPA</span>
-                <span>Vercel Edge Ready</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Cpu size={14} color="var(--accent-cyan)" /> React + TypeScript + Vite</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Shield size={14} color="var(--accent-emerald)" /> Supabase Integration</span>
+                <span>Pure Deterministic Logic</span>
+                <span>GitHub Pages Ready</span>
               </div>
             </div>
           </div>
@@ -85,7 +85,7 @@ export const Footer: React.FC = () => {
           color: 'var(--text-muted)',
         }}>
           <div>
-            © {new Date().getFullYear()} ProjectMatch · Prompt Wars Hackathon
+            © {new Date().getFullYear()} ProjectMatch · Student & Builder Team Formation Platform
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span>Crafted with</span>

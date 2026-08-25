@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { X, UserPlus, Clock, Award, BookOpen, ExternalLink, Calendar, MapPin, Sparkles } from 'lucide-react';
 import { UserProfile } from '../types';
 
@@ -9,22 +9,42 @@ interface ProfileModalProps {
 }
 
 export const ProfileModal: React.FC<ProfileModalProps> = ({ profile, onClose, onInvite }) => {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    if (profile) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [profile, onClose]);
+
   if (!profile) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      zIndex: 1000,
-      background: 'rgba(3, 7, 18, 0.8)',
-      backdropFilter: 'blur(8px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px',
-    }}>
+    <div 
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 1000,
+        background: 'rgba(3, 7, 18, 0.8)',
+        backdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div 
         className="glass-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="profile-modal-title"
         style={{
           width: '100%',
           maxWidth: '680px',
@@ -41,6 +61,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ profile, onClose, on
         {/* Close Button */}
         <button
           onClick={onClose}
+          aria-label="Close profile modal"
           style={{
             position: 'absolute',
             top: '20px',
@@ -79,7 +100,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ profile, onClose, on
           </div>
 
           <div style={{ flex: 1 }}>
-            <h2 style={{ fontSize: '1.6rem', color: '#ffffff', marginBottom: '4px' }}>
+            <h2 id="profile-modal-title" style={{ fontSize: '1.6rem', color: '#ffffff', marginBottom: '4px' }}>
               {profile.full_name}
             </h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '8px' }}>
@@ -120,9 +141,9 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ profile, onClose, on
 
         {/* Bio */}
         <div style={{ marginBottom: '24px' }}>
-          <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '8px', letterSpacing: '0.05em' }}>
+          <h3 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '8px', letterSpacing: '0.05em' }}>
             About
-          </h4>
+          </h3>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.6 }}>
             {profile.bio || 'No bio provided yet.'}
           </p>
@@ -143,9 +164,9 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ profile, onClose, on
 
         {/* Skills & Proficiencies */}
         <div style={{ marginBottom: '24px' }}>
-          <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '10px', letterSpacing: '0.05em' }}>
+          <h3 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '10px', letterSpacing: '0.05em' }}>
             Technical & Soft Skills
-          </h4>
+          </h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {profile.skills.map(skill => (
               <span

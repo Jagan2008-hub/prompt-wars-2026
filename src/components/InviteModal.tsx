@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Send, FolderGit2 } from 'lucide-react';
 import { UserProfile, RoleType } from '../types';
 import { useApp } from '../context/AppContext';
@@ -19,6 +19,18 @@ export const InviteModal: React.FC<InviteModalProps> = ({ candidate, onClose }) 
     candidate ? `Hey ${candidate.full_name}, we'd love to invite you to join our project team!` : ''
   );
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    if (candidate) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [candidate, onClose]);
+
   if (!candidate) return null;
 
   const handleSend = (e: React.FormEvent) => {
@@ -33,19 +45,27 @@ export const InviteModal: React.FC<InviteModalProps> = ({ candidate, onClose }) 
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      zIndex: 1100,
-      background: 'rgba(3, 7, 18, 0.8)',
-      backdropFilter: 'blur(8px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px',
-    }}>
+    <div 
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 1100,
+        background: 'rgba(3, 7, 18, 0.8)',
+        backdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div 
         className="glass-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="invite-modal-title"
         style={{
           width: '100%',
           maxWidth: '520px',
@@ -58,15 +78,16 @@ export const InviteModal: React.FC<InviteModalProps> = ({ candidate, onClose }) 
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div>
-            <h3 style={{ fontSize: '1.3rem', color: '#ffffff' }}>
+            <h2 id="invite-modal-title" style={{ fontSize: '1.3rem', color: '#ffffff' }}>
               Invite <span className="gradient-text">{candidate.full_name}</span>
-            </h3>
+            </h2>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
               Send an official team invite to collaborate on your project.
             </p>
           </div>
           <button
             onClick={onClose}
+            aria-label="Close invite modal"
             style={{
               background: 'rgba(255, 255, 255, 0.08)',
               border: '1px solid var(--border-glass)',
@@ -86,10 +107,11 @@ export const InviteModal: React.FC<InviteModalProps> = ({ candidate, onClose }) 
         <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Target Project Selector */}
           <div>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+            <label htmlFor="invite-proj-select" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
               Select Project
             </label>
             <select
+              id="invite-proj-select"
               value={selectedProjectId}
               onChange={(e) => setSelectedProjectId(e.target.value)}
               style={{
@@ -113,10 +135,11 @@ export const InviteModal: React.FC<InviteModalProps> = ({ candidate, onClose }) 
 
           {/* Role Offered */}
           <div>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+            <label htmlFor="invite-role-select" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
               Offered Role
             </label>
             <select
+              id="invite-role-select"
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value as RoleType)}
               style={{
@@ -140,10 +163,11 @@ export const InviteModal: React.FC<InviteModalProps> = ({ candidate, onClose }) 
 
           {/* Message */}
           <div>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
+            <label htmlFor="invite-note-textarea" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', marginBottom: '6px' }}>
               Invitation Note
             </label>
             <textarea
+              id="invite-note-textarea"
               rows={3}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
