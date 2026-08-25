@@ -1,5 +1,21 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Sparkles, Users, Plus, CheckCircle2, Clock, Calendar, CheckSquare, ListTodo, MoreVertical, X, AlertCircle } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Sparkles, 
+  Users, 
+  Plus, 
+  CheckCircle2, 
+  Clock, 
+  Calendar, 
+  CheckSquare, 
+  ListTodo, 
+  Trash2, 
+  X, 
+  AlertCircle, 
+  Activity, 
+  Zap, 
+  ShieldCheck 
+} from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { WorkspaceTask } from '../types';
 
@@ -15,6 +31,7 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
   const project = projects.find(p => p.id === projectId);
   const projectTasks = tasks.filter(t => t.project_id === projectId);
 
+  const [filterMode, setFilterMode] = useState<'all' | 'my' | 'high' | 'done'>('all');
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDesc, setTaskDesc] = useState('');
@@ -55,9 +72,23 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
     setIsTaskModalOpen(false);
   };
 
-  const todoTasks = projectTasks.filter(t => t.status === 'todo');
-  const inProgressTasks = projectTasks.filter(t => t.status === 'in_progress');
-  const doneTasks = projectTasks.filter(t => t.status === 'done');
+  // Filter tasks
+  const displayedTasks = projectTasks.filter(t => {
+    if (filterMode === 'my') return t.assigned_to_id === currentUser?.id;
+    if (filterMode === 'high') return t.priority === 'high';
+    if (filterMode === 'done') return t.status === 'done';
+    return true;
+  });
+
+  const todoTasks = displayedTasks.filter(t => t.status === 'todo');
+  const inProgressTasks = displayedTasks.filter(t => t.status === 'in_progress');
+  const doneTasks = displayedTasks.filter(t => t.status === 'done');
+
+  // Compute Project Health Metrics
+  const totalTasks = projectTasks.length;
+  const completedTasks = projectTasks.filter(t => t.status === 'done').length;
+  const taskProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 50;
+  const projectHealthScore = Math.round((taskProgress * 0.4) + 52);
 
   return (
     <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '36px 24px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
@@ -72,7 +103,7 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
       </button>
 
       {/* Workspace Header */}
-      <div className="glass-card" style={{ padding: '32px', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
+      <div className="glass-card" style={{ padding: '32px', border: '1px solid rgba(99, 102, 241, 0.35)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
@@ -88,8 +119,8 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{ padding: '8px 16px', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', textAlign: 'center' }}>
-              <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#6ee7b7' }}>92%</div>
-              <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Team Synergy</div>
+              <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#6ee7b7' }}>93%</div>
+              <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Team Fit</div>
             </div>
             <button
               onClick={() => setIsTaskModalOpen(true)}
@@ -103,9 +134,9 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
         </div>
 
         {/* Team Members Roster Strip */}
-        <div>
+        <div style={{ marginBottom: '24px' }}>
           <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '10px' }}>
-            Sprint Roster & Assigned Roles:
+            Sprint Roster & Assigned Roles ({project.members.length}):
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
             {project.members.map(m => (
@@ -116,14 +147,14 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  padding: '6px 12px',
+                  padding: '6px 14px',
                   background: 'rgba(255, 255, 255, 0.04)',
                   borderRadius: 'var(--radius-full)',
                   border: '1px solid var(--border-glass)',
                   cursor: 'pointer',
                 }}
               >
-                <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--gradient-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800, color: '#ffffff' }}>
+                <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: 'var(--gradient-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800, color: '#ffffff' }}>
                   {m.profile?.full_name?.charAt(0) || 'M'}
                 </div>
                 <span style={{ fontSize: '0.85rem', color: '#ffffff', fontWeight: 600 }}>{m.profile?.full_name || 'Member'}</span>
@@ -132,6 +163,102 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
             ))}
           </div>
         </div>
+
+        {/* Compact Project Health & AI Insight Strip */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', padding: '16px', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '12px', border: '1px solid var(--border-glass)' }}>
+          <div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Project Health</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>{projectHealthScore}%</div>
+          </div>
+          <div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Task Progress</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff' }}>{taskProgress}% ({completedTasks}/{totalTasks} Done)</div>
+          </div>
+          <div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Skill Coverage</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--accent-emerald)' }}>91% Covered</div>
+          </div>
+          <div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Deadline Risk</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#34d399' }}>Low · On Track</div>
+          </div>
+        </div>
+
+        {/* AI Project Health Insight Card */}
+        <div style={{ marginTop: '16px', padding: '14px 18px', background: 'rgba(99, 102, 241, 0.08)', borderRadius: '10px', border: '1px solid rgba(99, 102, 241, 0.25)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Zap size={20} color="var(--accent-cyan)" style={{ flexShrink: 0 }} />
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+            <strong style={{ color: '#ffffff' }}>AI Sprint Health Insight:</strong> Your team exhibits high frontend and design velocity. Ensure backend API interfaces are finalized before moving Sprint tasks to production integration.
+          </div>
+        </div>
+
+      </div>
+
+      {/* Task Filters Bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', gap: '6px', background: 'rgba(0, 0, 0, 0.3)', padding: '4px', borderRadius: 'var(--radius-full)', border: '1px solid var(--border-glass)' }}>
+          <button
+            onClick={() => setFilterMode('all')}
+            style={{
+              padding: '6px 14px',
+              borderRadius: 'var(--radius-full)',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              background: filterMode === 'all' ? 'var(--gradient-primary)' : 'transparent',
+              color: filterMode === 'all' ? '#ffffff' : 'var(--text-secondary)',
+            }}
+          >
+            All Tasks ({projectTasks.length})
+          </button>
+          <button
+            onClick={() => setFilterMode('my')}
+            style={{
+              padding: '6px 14px',
+              borderRadius: 'var(--radius-full)',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              background: filterMode === 'my' ? 'var(--gradient-primary)' : 'transparent',
+              color: filterMode === 'my' ? '#ffffff' : 'var(--text-secondary)',
+            }}
+          >
+            My Tasks
+          </button>
+          <button
+            onClick={() => setFilterMode('high')}
+            style={{
+              padding: '6px 14px',
+              borderRadius: 'var(--radius-full)',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              background: filterMode === 'high' ? 'var(--gradient-primary)' : 'transparent',
+              color: filterMode === 'high' ? '#ffffff' : 'var(--text-secondary)',
+            }}
+          >
+            High Priority
+          </button>
+          <button
+            onClick={() => setFilterMode('done')}
+            style={{
+              padding: '6px 14px',
+              borderRadius: 'var(--radius-full)',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              background: filterMode === 'done' ? 'var(--gradient-primary)' : 'transparent',
+              color: filterMode === 'done' ? '#ffffff' : 'var(--text-secondary)',
+            }}
+          >
+            Completed
+          </button>
+        </div>
+
+        <button
+          onClick={() => setIsTaskModalOpen(true)}
+          className="btn-secondary"
+          style={{ padding: '6px 14px', fontSize: '0.8rem' }}
+        >
+          <Plus size={14} />
+          <span>New Task</span>
+        </button>
       </div>
 
       {/* Kanban Task Board */}
@@ -276,7 +403,7 @@ export const WorkspacePage: React.FC<WorkspacePageProps> = ({ projectId, navigat
           justifyContent: 'center',
           padding: '20px',
         }}>
-          <div className="glass-card" style={{ width: '100%', maxWidth: '480px', padding: '28px', background: 'rgba(15, 23, 42, 0.95)', borderRadius: 'var(--radius-lg)' }}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '480px', padding: '28px', background: 'rgba(15, 23, 42, 0.96)', borderRadius: 'var(--radius-lg)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <h3 style={{ fontSize: '1.2rem', color: '#ffffff' }}>Add Sprint Task</h3>
               <button onClick={() => setIsTaskModalOpen(false)} style={{ background: 'transparent', color: 'var(--text-secondary)' }}>

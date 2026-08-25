@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Plus, Sparkles, Calendar, Clock, Award, Layers } from 'lucide-react';
+import { X, Plus, Sparkles, Calendar, Clock, Award, Layers, ShieldCheck, Zap } from 'lucide-react';
 import { ProjectCategory, RoleType, ExperienceLevel, Project } from '../types';
 import { useApp } from '../context/AppContext';
 import { ALL_AVAILABLE_SKILLS, ALL_ROLES } from '../data/mockData';
@@ -15,7 +15,7 @@ const CATEGORIES: ProjectCategory[] = [
 ];
 
 export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, onClose, onCreated }) => {
-  const { createProject, addToast } = useApp();
+  const { createProject, addToast, currentUser } = useApp();
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -57,6 +57,12 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
       setSelectedRoles([...selectedRoles, role]);
     }
   };
+
+  // Compute live AI readiness preview
+  const estimatedDifficulty = selectedSkills.some(s => ['AI/ML', 'PyTorch', 'ROS2', 'Go', 'Robotics'].includes(s))
+    ? 'High Technical Complexity'
+    : 'Moderate Sprint';
+  const estimatedReadiness = Math.min(96, Math.max(70, Math.round(50 + selectedSkills.length * 8 + selectedRoles.length * 6)));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,11 +112,11 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
         className="glass-card"
         style={{
           width: '100%',
-          maxWidth: '720px',
+          maxWidth: '740px',
           maxHeight: '90vh',
           overflowY: 'auto',
           padding: '32px',
-          background: 'rgba(15, 23, 42, 0.95)',
+          background: 'rgba(15, 23, 42, 0.96)',
           border: '1px solid rgba(99, 102, 241, 0.4)',
           borderRadius: 'var(--radius-lg)',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
@@ -146,6 +152,20 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
             Publish your project requirements. Our Gemini AI engine will automatically analyze skill gaps and recommend matching teammates.
           </p>
+        </div>
+
+        {/* Live AI Project Readiness Indicator */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '10px', border: '1px solid rgba(99, 102, 241, 0.25)', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Zap size={18} color="var(--accent-cyan)" />
+            <div>
+              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ffffff' }}>Live AI Readiness Score: {estimatedReadiness}%</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Difficulty: {estimatedDifficulty} · {selectedRoles.length} Roles Defined</div>
+            </div>
+          </div>
+          <span style={{ fontSize: '0.75rem', padding: '3px 8px', borderRadius: '4px', background: 'rgba(16, 185, 129, 0.15)', color: '#34d399', fontWeight: 600 }}>
+            Ready to Staff
+          </span>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

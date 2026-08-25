@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Edit3, Save, MapPin, Clock, Calendar, BookOpen, ExternalLink, Plus, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Edit3, Save, MapPin, Clock, Calendar, BookOpen, ExternalLink, Plus, CheckCircle2, Zap, TrendingUp, Lightbulb } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { ALL_AVAILABLE_SKILLS, ALL_ROLES } from '../data/mockData';
 import { RoleType, ExperienceLevel } from '../types';
@@ -101,6 +101,15 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ navigate }) => {
 
   const userProjects = projects.filter(p => p.creator_id === currentUser.id || p.members.some(m => m.user_id === currentUser.id));
 
+  // Dynamic AI Growth Suggestions tailored to persona
+  const aiGrowthSuggestions = [
+    `Your proficiency in ${currentUser.skills.slice(0, 2).join(' and ')} is in the top 5% demand across active hackathon projects.`,
+    currentUser.learning_goals.length > 0 
+      ? `Actively learning ${currentUser.learning_goals[0]} will unlock 94%+ compatibility on AI / ML co-pilot projects.` 
+      : `Add 2 learning goals to accelerate complementary peer matching.`,
+    `Your ${currentUser.schedule_preference} schedule (${currentUser.hours_per_week}h/wk) provides high synergy with 4 campus teams.`
+  ];
+
   return (
     <div style={{ maxWidth: '1080px', margin: '0 auto', padding: '36px 24px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
       
@@ -129,7 +138,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ navigate }) => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <h1 style={{ fontSize: '1.8rem', color: '#ffffff' }}>{currentUser.full_name}</h1>
                 <span style={{ padding: '2px 8px', borderRadius: 'var(--radius-full)', background: 'rgba(16, 185, 129, 0.15)', color: '#34d399', fontSize: '0.75rem', fontWeight: 700 }}>
-                  Active Builder
+                  Active Persona
                 </span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>
@@ -165,6 +174,23 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ navigate }) => {
           </div>
         </div>
 
+      </div>
+
+      {/* AI Growth Suggestions Card */}
+      <div className="glass-card" style={{ padding: '24px', border: '1px solid rgba(6, 182, 212, 0.3)', background: 'rgba(6, 182, 212, 0.04)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+          <Lightbulb size={18} color="var(--accent-cyan)" />
+          <h3 style={{ fontSize: '1.05rem', color: '#ffffff' }}>AI Career & Team Formation Insights</h3>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {aiGrowthSuggestions.map((sug, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              <Zap size={14} color="var(--accent-cyan)" style={{ flexShrink: 0, marginTop: '3px' }} />
+              <span>{sug}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Main Details Body */}

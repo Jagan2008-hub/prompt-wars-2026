@@ -76,13 +76,22 @@ export interface Project {
   created_at: string;
 }
 
+export interface AIMatchFactor {
+  name: string;
+  score: number;
+  weight: number; // percentage e.g. 35
+  description: string;
+}
+
 export interface AIMatchAnalysis {
   overallScore: number;
   skillMatch: number;
   roleMatch: number;
   availabilityMatch: number;
   experienceMatch: number;
-  interestMatch: number;
+  learningSynergy: number;
+  communicationFit: number;
+  factors: AIMatchFactor[];
   keyStrengths: string[];
   growthAreas: string[];
   synergyReasoning: string;
@@ -92,8 +101,13 @@ export interface AIMatchAnalysis {
 export interface SkillGapItem {
   skill: string;
   status: 'Covered' | 'Partial' | 'Missing';
+  coveragePercentage: number;
   coveredBy?: string[];
-  suggestedCandidates?: UserProfile[];
+  suggestedCandidates?: {
+    profile: UserProfile;
+    reason: string;
+    gapFillEfficiency: number;
+  }[];
 }
 
 export interface DreamTeamMember {
@@ -102,6 +116,20 @@ export interface DreamTeamMember {
   matchScore: number;
   contributedSkills: string[];
   selectionReason: string;
+}
+
+export interface CandidateRejectionReason {
+  profile: UserProfile;
+  reason: string;
+}
+
+export interface TeamDNA {
+  technical: number;
+  creative: number;
+  execution: number;
+  leadership: number;
+  learning: number;
+  dnaSummary: string;
 }
 
 export interface DreamTeamResult {
@@ -114,6 +142,17 @@ export interface DreamTeamResult {
   strengths: string[];
   potentialRisks: string[];
   uncoveredSkills: string[];
+  rejectedCandidates?: CandidateRejectionReason[];
+  dna: TeamDNA;
+}
+
+export interface ProjectReadiness {
+  readinessScore: number;
+  skillCoverage: number;
+  roleStaffing: number;
+  difficultyEstimate: 'Beginner Friendly' | 'Moderate Sprint' | 'High Technical Complexity';
+  recommendedInitialRoles: RoleType[];
+  readinessAdvice: string;
 }
 
 export interface InvitationOrRequest {
@@ -151,4 +190,5 @@ export interface NotificationItem {
   timestamp: string;
   read: boolean;
   link?: string;
+  type?: 'invite' | 'match' | 'system' | 'gap';
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, Sparkles, UserPlus, Eye, MapPin, Clock, Calendar, ChevronRight } from 'lucide-react';
+import { Search, Filter, Sparkles, UserPlus, Eye, MapPin, Clock, Calendar, ArrowUpDown, CheckCircle2, Zap } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { UserProfile, RoleType, ExperienceLevel } from '../types';
 import { ALL_AVAILABLE_SKILLS, ALL_ROLES } from '../data/mockData';
@@ -19,12 +19,36 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
   const [selectedSkill, setSelectedSkill] = useState<string>('All');
   const [selectedExperience, setSelectedExperience] = useState<string>('All');
   const [selectedSchedule, setSelectedSchedule] = useState<string>('All');
+  const [sortBy, setSortBy] = useState<'match' | 'hours' | 'name'>('match');
 
   const activeUserProject = projects.find(p => p.creator_id === currentUser?.id);
 
-  // Filter profiles
-  const filteredProfiles = profiles.filter(p => {
-    // Exclude currentUser from community pool or show with badge
+  // Compute profile matches & filter
+  const processedProfiles = profiles.map(p => {
+    let matchScore = 88 + (p.skills.length % 9);
+    if (activeUserProject) {
+      matchScore = calculateLocalMatch(activeUserProject, p).overallScore;
+    } else if (currentUser) {
+      // Peer-to-peer complementary score
+      const sharedInterests = p.interests.filter(i => currentUser.interests.includes(i)).length;
+      const compSkills = p.skills.filter(s => !currentUser.skills.includes(s)).length;
+      matchScore = Math.min(97, 82 + (sharedInterests * 4) + (compSkills * 2));
+    }
+    const isAiRecommended = matchScore >= 92;
+
+    const sharedSkills = p.skills.filter(s => currentUser?.skills.includes(s));
+    const complementarySkills = p.skills.filter(s => !currentUser?.skills.includes(s));
+
+    return {
+      ...p,
+      matchScore,
+      isAiRecommended,
+      sharedSkills,
+      complementarySkills,
+    };
+  });
+
+  const filteredProfiles = processedProfiles.filter(p => {
     const matchesSearch = 
       p.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.college.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -38,6 +62,13 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
     const matchesSchedule = selectedSchedule === 'All' || p.schedule_preference === selectedSchedule;
 
     return matchesSearch && matchesRole && matchesSkill && matchesExp && matchesSchedule;
+  });
+
+  // Sorting
+  filteredProfiles.sort((a, b) => {
+    if (sortBy === 'match') return b.matchScore - a.matchScore;
+    if (sortBy === 'hours') return b.hours_per_week - a.hours_per_week;
+    return a.full_name.localeCompare(b.full_name);
   });
 
   return (
@@ -64,25 +95,40 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
       {/* Search & Filter Bar */}
       <div className="glass-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
         
-        {/* Search Input */}
-        <div style={{ position: 'relative' }}>
-          <Search size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '14px' }} />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by name, skill (e.g. PyTorch, React, UI/UX), role, or university..."
-            style={{
-              width: '100%',
-              padding: '12px 14px 12px 42px',
-              background: 'rgba(255, 255, 255, 0.04)',
-              border: '1px solid var(--border-glass)',
-              borderRadius: '10px',
-              color: '#ffffff',
-              fontSize: '0.95rem',
-              outline: 'none',
-            }}
-          />
+        {/* Search Input & Sort Selector */}
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={{ position: 'relative', flex: 1, minWidth: '260px' }}>
+            <Search size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '14px' }} />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by name, skill (e.g. PyTorch, React, UI/UX), role, or university..."
+              style={{
+                width: '100%',
+                padding: '12px 14px 12px 42px',
+                background: 'rgba(255, 255, 255, 0.04)',
+                border: '1px solid var(--border-glass)',
+                borderRadius: '10px',
+                color: '#ffffff',
+                fontSize: '0.95rem',
+                outline: 'none',
+              }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <ArrowUpDown size={16} color="var(--text-muted)" />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              style={{ padding: '12px 16px', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border-glass)', borderRadius: '10px', color: '#ffffff', fontSize: '0.85rem', outline: 'none' }}
+            >
+              <option value="match" style={{ background: '#0f172a' }}>Sort: Highest AI Match</option>
+              <option value="hours" style={{ background: '#0f172a' }}>Sort: Most Available Hours</option>
+              <option value="name" style={{ background: '#0f172a' }}>Sort: Alphabetical (Name)</option>
+            </select>
+          </div>
         </div>
 
         {/* Filter Dropdowns & Pills */}
@@ -188,11 +234,6 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '24px' }}>
           {filteredProfiles.map(profile => {
-            // Compute compatibility score if active project exists
-            const matchScore = activeUserProject
-              ? calculateLocalMatch(activeUserProject, profile).overallScore
-              : 88 + (profile.skills.length % 9);
-
             return (
               <div
                 key={profile.id}
@@ -203,7 +244,11 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                   gap: '16px',
-                  border: profile.id === currentUser?.id ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid var(--border-glass)',
+                  border: profile.isAiRecommended 
+                    ? '1px solid rgba(16, 185, 129, 0.45)' 
+                    : profile.id === currentUser?.id 
+                    ? '1px solid rgba(99, 102, 241, 0.5)' 
+                    : '1px solid var(--border-glass)',
                 }}
               >
                 {/* Top Section */}
@@ -229,7 +274,7 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <h3 style={{ fontSize: '1.15rem', color: '#ffffff' }}>{profile.full_name}</h3>
                           {profile.id === currentUser?.id && (
-                            <span style={{ fontSize: '0.65rem', padding: '1px 6px', background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', borderRadius: '4px', fontWeight: 700 }}>YOU</span>
+                            <span style={{ fontSize: '0.65rem', padding: '1px 6px', background: 'rgba(99, 102, 241, 0.25)', color: '#c7d2fe', borderRadius: '4px', fontWeight: 700 }}>YOU</span>
                           )}
                         </div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
@@ -238,8 +283,16 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
                       </div>
                     </div>
 
-                    <CompatibilityRing score={matchScore} size={48} strokeWidth={4} showLabel={false} />
+                    <CompatibilityRing score={profile.matchScore} size={48} strokeWidth={4} showLabel={false} />
                   </div>
+
+                  {/* AI Recommended Badge */}
+                  {profile.isAiRecommended && (
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '3px 10px', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: 'var(--radius-full)', color: '#6ee7b7', fontSize: '0.7rem', fontWeight: 700, marginBottom: '10px' }}>
+                      <Sparkles size={12} />
+                      <span>AI Top Recommendation</span>
+                    </div>
+                  )}
 
                   {/* College Tag */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
@@ -269,22 +322,8 @@ export const CommunityPage: React.FC<CommunityPageProps> = ({ openProfileModal, 
                     </span>
                   </div>
 
-                  {/* Bio */}
-                  <p style={{
-                    fontSize: '0.85rem',
-                    color: 'var(--text-secondary)',
-                    lineHeight: 1.5,
-                    marginBottom: '14px',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden'
-                  }}>
-                    {profile.bio || 'Passionate student builder forming high-synergy teams.'}
-                  </p>
-
                   {/* Skills Chips */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginBottom: '14px' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginBottom: '12px' }}>
                     {profile.skills.slice(0, 4).map(skill => (
                       <span
                         key={skill}
