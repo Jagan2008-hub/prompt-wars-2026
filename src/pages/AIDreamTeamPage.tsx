@@ -22,6 +22,7 @@ import { detectSkillGaps, generateAIDreamTeam } from '../lib/gemini';
 import { SkillGapBadge } from '../components/SkillGapBadge';
 import { CompatibilityRing } from '../components/CompatibilityRing';
 import { TeamDNAChart } from '../components/TeamDNAChart';
+import { AITeamBriefModal } from '../components/AITeamBriefModal';
 
 interface AIDreamTeamPageProps {
   projectId: string;
@@ -45,6 +46,7 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
   const [loadingTeam, setLoadingTeam] = useState(false);
   const [invitedAll, setInvitedAll] = useState(false);
   const [activeTab, setActiveTab] = useState<'squad' | 'dna' | 'whynot'>('squad');
+  const [isBriefModalOpen, setIsBriefModalOpen] = useState(false);
 
   const runAnalysis = () => {
     if (!project) return;
@@ -265,8 +267,15 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
           </div>
 
           {dreamTeam && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
               <CompatibilityRing score={dreamTeam.teamCompatibilityScore} size={64} strokeWidth={6} label="Team Synergy" />
+              <button
+                onClick={() => setIsBriefModalOpen(true)}
+                className="btn-secondary"
+                style={{ padding: '10px 16px', fontSize: '0.85rem' }}
+              >
+                <span>📄 View Team Brief</span>
+              </button>
               <button
                 onClick={handleBatchInvite}
                 disabled={invitedAll}
@@ -274,7 +283,7 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
                 style={{ padding: '10px 20px', fontSize: '0.9rem' }}
               >
                 <Send size={16} />
-                <span>{invitedAll ? 'Invitations Sent!' : 'Batch Invite All Teammates'}</span>
+                <span>{invitedAll ? 'Invitations Sent!' : 'Batch Invite All'}</span>
               </button>
             </div>
           )}
@@ -496,6 +505,17 @@ export const AIDreamTeamPage: React.FC<AIDreamTeamPageProps> = ({
         ) : null}
 
       </div>
+
+      {/* AI Team Executive Brief Modal */}
+      {dreamTeam && (
+        <AITeamBriefModal
+          isOpen={isBriefModalOpen}
+          onClose={() => setIsBriefModalOpen(false)}
+          project={project}
+          dreamTeam={dreamTeam}
+          onOpenWorkspace={() => navigate(`/workspace/${project.id}`)}
+        />
+      )}
 
     </div>
   );
